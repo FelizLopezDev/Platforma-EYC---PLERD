@@ -44,7 +44,7 @@ export const STATUS_LABELS: Record<ReportStatus, string> = {
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  aic: 'Usuario AIC',
+  aic: 'Usuario EYC',
   undersecretary: 'Subsecretario de Evaluación y Control',
   secretary_general: 'Secretario General',
 };

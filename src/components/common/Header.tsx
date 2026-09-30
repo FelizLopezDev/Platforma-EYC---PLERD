@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden sm:inline text-[#0d5285] font-medium">{ROLE_LABELS[user.role]}</span>
           </div>
           <h1 className="text-lg sm:text-xl font-bold font-display text-[#0c1f33] tracking-tight">
-            Carga y Envío del Informe Oficial
+            Revisión de informes
           </h1>
         </div>
       </div>

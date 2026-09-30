@@ -9,6 +9,8 @@ const PASSWORDS_STORAGE_KEY = 'sigel_passwords_v5';
 const DEFAULT_PASSWORDS: Record<string, string> = {
   'felizlopezgroup@gmail.com': 'admin2026',
   'subsecretario.control@sigel.edu.do': 'sub2026',
+  'eyc.disec@sigel.edu.do': 'eyc2026',
+  'eyc.ddhh@sigel.edu.do': 'eyc2026',
   'aic.disec@sigel.edu.do': 'aic2026',
   'aic.ddhh@sigel.edu.do': 'aic2026',
 };
@@ -102,6 +104,10 @@ export class DataStore {
     return this.getUsers().filter((u) => u.role === 'aic');
   }
 
+  static getEycUsers(): User[] {
+    return this.getAicUsers();
+  }
+
   static getUndersecretaryUsers(): User[] {
     return this.getUsers().filter((u) => u.role === 'undersecretary');
   }
@@ -115,7 +121,7 @@ export class DataStore {
   }): User {
     const users = this.getUsers();
     const newUser: User = {
-      id: `user-aic-${Date.now()}`,
+      id: `user-eyc-${Date.now()}`,
       username: data.email.split('@')[0],
       email: data.email,
       fullName: data.fullName,
@@ -130,16 +136,16 @@ export class DataStore {
     if (data.password) {
       this.savePassword(data.email, data.password);
     } else {
-      this.savePassword(data.email, 'aic2026');
+      this.savePassword(data.email, 'eyc2026');
     }
 
-    // Also automatically initialize a pending report slot for this AIC
+    // Also automatically initialize a pending report slot for this EYC
     const reports = this.getReports();
     reports.push({
       id: `rep-${Date.now()}`,
       aicId: newUser.id,
       aicName: newUser.fullName,
-      commission: newUser.commission || 'Comisión General',
+      commission: newUser.commission || 'Comisión EYC General',
       district: newUser.district || 'Distrito Regional 10',
       fileName: '',
       fileSize: '',
@@ -149,6 +155,16 @@ export class DataStore {
     this.saveReports(reports);
 
     return newUser;
+  }
+
+  static createEycUser(data: {
+    fullName: string;
+    email: string;
+    commission: string;
+    district: string;
+    password?: string;
+  }): User {
+    return this.createAicUser(data);
   }
 
   static createUndersecretaryUser(data: {

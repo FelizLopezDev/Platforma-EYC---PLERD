@@ -43,15 +43,19 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
   const [newSubEmail, setNewSubEmail] = useState('');
   const [newSubPassword, setNewSubPassword] = useState('sub2026');
 
-  // AIC Commission creation modal
+  // EYC Commission creation modal
   const [createAicModalOpen, setCreateAicModalOpen] = useState(false);
   const [newAicName, setNewAicName] = useState('');
   const [newAicDistrict, setNewAicDistrict] = useState('Distrito Educativo 10-01');
   const [newAicEmail, setNewAicEmail] = useState('');
-  const [newAicPassword, setNewAicPassword] = useState('aic2026');
+  const [newAicPassword, setNewAicPassword] = useState('eyc2026');
 
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+
+  // User deletion modal state
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState<string | null>(null);
 
   // Secretary General sees reports forwarded by Undersecretary
   const forwardedReports = DataStore.getForwardedReportsForSecretaryGeneral();
@@ -136,13 +140,13 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
       commission: newAicName.trim(),
       district: newAicDistrict.trim(),
       email: newAicEmail.trim(),
-      password: newAicPassword.trim() || 'aic2026',
+      password: newAicPassword.trim() || 'eyc2026',
     });
 
-    setFormSuccess(`Comisión AIC "${newAicName}" habilitada exitosamente.`);
+    setFormSuccess(`Comisión EYC "${newAicName}" habilitada exitosamente.`);
     setNewAicName('');
     setNewAicEmail('');
-    setNewAicPassword('aic2026');
+    setNewAicPassword('eyc2026');
 
     setTimeout(() => {
       setCreateAicModalOpen(false);
@@ -151,19 +155,20 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
     }, 900);
   };
 
-  const handleDeleteUser = (targetUser: User) => {
+  const handleRequestDeleteUser = (targetUser: User) => {
     if (targetUser.id === user.id || targetUser.role === 'secretary_general') {
-      alert('No es posible eliminar la cuenta del Secretario General / Administrador.');
+      setDeleteErrorMessage('No es posible eliminar la cuenta del Secretario General / Administrador.');
       return;
     }
+    setDeleteErrorMessage(null);
+    setUserToDelete(targetUser);
+  };
 
-    const confirmDelete = window.confirm(
-      `¿Está seguro de revocar el acceso a ${targetUser.fullName} (${targetUser.email})?`
-    );
-    if (confirmDelete) {
-      DataStore.deleteUser(targetUser.id);
-      onRefreshData();
-    }
+  const handleConfirmDeleteUser = () => {
+    if (!userToDelete) return;
+    DataStore.deleteUser(userToDelete.id);
+    setUserToDelete(null);
+    onRefreshData();
   };
 
   return (
@@ -172,7 +177,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
       <div id="sg-metrics-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
           <div className="text-[11px] font-bold text-[#c9972b] uppercase tracking-wider">
-            INFORMES CONSOLIDADOS
+            INFORMES RECIBIDOS
           </div>
           <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
             {forwardedReports.length}
@@ -184,13 +189,13 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
 
         <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
           <div className="text-[11px] font-bold text-[#0e7a52] uppercase tracking-wider">
-            COMISIONES AIC ACTIVAS
+            EVALUACIÓN Y CONTROL (EYC) ACTIVOS
           </div>
           <div className="text-3xl font-display font-bold text-[#0e7a52] mt-2 tabular-nums">
             {aicUsers.length}
           </div>
           <div className="text-xs text-[#0e7a52] mt-1 font-medium">
-            Comisiones dadas de alta
+            Activos en el modelo
           </div>
         </div>
 
@@ -270,7 +275,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0e7a52] hover:bg-[#09573a] text-white rounded-lg text-xs font-semibold transition-colors shadow-xs cursor-pointer"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>+ Crear Comisión AIC</span>
+                <span>Crear EYC</span>
               </button>
 
               <button
@@ -337,7 +342,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                         )}
                         {u.role === 'aic' && (
                           <span className="inline-block px-2.5 py-0.5 rounded bg-[#e6f7ef] text-[#0e7a52] border border-[#b6e4ce] font-semibold text-[10px]">
-                            COMISIÓN AIC
+                            COMISIÓN EYC
                           </span>
                         )}
                       </td>
@@ -356,7 +361,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                       <td className="px-5 py-3.5 text-right">
                         {u.role !== 'secretary_general' ? (
                           <button
-                            onClick={() => handleDeleteUser(u)}
+                            onClick={() => handleRequestDeleteUser(u)}
                             className="text-[#b23b31] hover:bg-[#fdeeec] p-1.5 rounded transition-colors cursor-pointer"
                             title="Eliminar usuario"
                           >
@@ -406,7 +411,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por comisión AIC, subsecretario responsable o archivo..."
+                placeholder="Buscar por comisión EYC, subsecretario responsable o archivo..."
                 className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#cbd5e1] focus:border-[#0f68a4] focus:ring-1 focus:ring-[#0f68a4] focus:outline-none"
               />
             </div>
@@ -417,7 +422,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
             <table id="secretary-reports-table" className="w-full text-left text-xs">
               <thead className="bg-[#f8fafc] text-[#475569] uppercase font-bold tracking-wider border-b border-[#e2e8f0]">
                 <tr>
-                  <th className="px-5 py-3.5">Comisión / AIC</th>
+                  <th className="px-5 py-3.5">Comisión / EYC</th>
                   <th className="px-5 py-3.5">Archivo</th>
                   <th className="px-5 py-3.5">Fecha de Envío</th>
                   <th className="px-5 py-3.5">Fecha de Reenvío</th>
@@ -681,7 +686,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
         </div>
       )}
 
-      {/* CREATE AIC COMMISSION MODAL */}
+      {/* CREATE EYC COMMISSION MODAL */}
       {createAicModalOpen && (
         <div
           id="create-aic-modal"
@@ -692,7 +697,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
               <div className="flex items-center gap-2.5">
                 <Building className="w-5 h-5 text-[#ecc978]" />
                 <h3 className="font-display font-bold text-base">
-                  Crear Nueva Comisión AIC
+                  Crear Nueva Comisión EYC
                 </h3>
               </div>
               <button
@@ -755,7 +760,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                   required
                   value={newAicEmail}
                   onChange={(e) => setNewAicEmail(e.target.value)}
-                  placeholder="aic.ecofin@sigel.edu.do"
+                  placeholder="eyc.ecofin@sigel.edu.do"
                   className="w-full px-3 py-2 text-xs rounded-lg border border-[#cbd5e1] focus:border-[#0e7a52] focus:outline-none"
                 />
               </div>
@@ -769,7 +774,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                   required
                   value={newAicPassword}
                   onChange={(e) => setNewAicPassword(e.target.value)}
-                  placeholder="aic2026"
+                  placeholder="eyc2026"
                   className="w-full px-3 py-2 text-xs rounded-lg border border-[#cbd5e1] focus:border-[#0e7a52] focus:outline-none font-mono"
                 />
               </div>
@@ -786,10 +791,88 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                   type="submit"
                   className="px-5 py-2 bg-[#0e7a52] hover:bg-[#09573a] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
                 >
-                  Crear Comisión AIC
+                  Crear Comisión EYC
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRM DELETE USER MODAL */}
+      {userToDelete && (
+        <div
+          id="confirm-delete-user-modal"
+          className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full border border-[#cbd5e1] shadow-2xl overflow-hidden p-6 space-y-4">
+            <div className="flex items-center gap-3 text-[#b23b31]">
+              <div className="w-10 h-10 rounded-full bg-[#fdeeec] flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-display font-bold text-base text-[#0c1f33]">
+                  Revocar Acceso a Usuario
+                </h4>
+                <p className="text-xs text-[#64748b]">
+                  Esta acción deshabilitará el acceso de esta cuenta a la plataforma.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl text-xs space-y-1">
+              <div className="font-bold text-[#0c1f33]">{userToDelete.fullName}</div>
+              <div className="text-[#0d5285] font-mono">{userToDelete.email}</div>
+              <div className="text-[11px] text-[#64748b]">
+                {userToDelete.commission || userToDelete.department || 'Dependencia institucional'}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setUserToDelete(null)}
+                className="px-4 py-2 text-xs font-semibold text-[#475569] hover:bg-[#e2e8f0] rounded-lg transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteUser}
+                className="px-4 py-2 bg-[#b23b31] hover:bg-[#962f27] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
+              >
+                Confirmar Revocación
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ERROR NOTICE MODAL */}
+      {deleteErrorMessage && (
+        <div
+          id="delete-error-modal"
+          className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+        >
+          <div className="bg-white rounded-2xl max-w-sm w-full border border-[#cbd5e1] shadow-2xl overflow-hidden p-6 space-y-4">
+            <div className="flex items-center gap-3 text-[#b23b31]">
+              <AlertCircle className="w-6 h-6" />
+              <h4 className="font-display font-bold text-sm text-[#0c1f33]">
+                Acción Restringida
+              </h4>
+            </div>
+            <p className="text-xs text-[#475569] leading-relaxed">
+              {deleteErrorMessage}
+            </p>
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteErrorMessage(null)}
+                className="px-4 py-2 bg-[#0f68a4] hover:bg-[#0d5285] text-white text-xs font-semibold rounded-lg cursor-pointer"
+              >
+                Entendido
+              </button>
+            </div>
           </div>
         </div>
       )}

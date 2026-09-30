@@ -57,7 +57,7 @@ export default function App() {
     return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Active AIC report
+  // Active EYC report
   const aicReport = currentUser.role === 'aic' ? DataStore.getReportByAicId(currentUser.id) : undefined;
 
   return (

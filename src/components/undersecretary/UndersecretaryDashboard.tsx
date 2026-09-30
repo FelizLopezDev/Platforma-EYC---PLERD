@@ -167,13 +167,13 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
 
         <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
           <div className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
-            USUARIOS AIC REGISTRADOS
+            EVALUACIÓN Y CONTROL (EYC) ACTIVOS
           </div>
           <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
             {aicUsers.length}
           </div>
           <div className="text-xs text-[#64748b] mt-1">
-            Comisiones activas en Regional 10
+            Comisiones activas en el modelo
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
           <div className="p-6 border-b border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="font-display font-bold text-xl text-[#0c1f33]">
-                Gestión de Usuarios AIC (Comisiones)
+                Gestión de Usuarios EYC (Comisiones)
               </h2>
               <p className="text-xs text-[#64748b] mt-0.5">
                 Facultad exclusiva de la Subsecretaría de Evaluación y Control para habilitar cuentas de comisión.
@@ -198,7 +198,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0f68a4] hover:bg-[#0d5285] text-white rounded-lg text-xs font-semibold transition-colors shadow-xs"
             >
               <UserPlus className="w-4 h-4" />
-              <span>Crear Nuevo Usuario AIC</span>
+              <span>Crear Nuevo Usuario EYC</span>
             </button>
           </div>
 
@@ -236,7 +236,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
                     </td>
                     <td className="px-6 py-4 text-right">
                       <span className="inline-block px-2.5 py-0.5 rounded bg-[#eff7fd] text-[#0f68a4] border border-[#b0dbf5] font-semibold text-[11px]">
-                        AIC
+                        EYC
                       </span>
                     </td>
                   </tr>
@@ -256,7 +256,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
                   Bandeja de Informes Institucionales
                 </h2>
                 <p className="text-xs text-[#64748b] mt-0.5">
-                  Revisión y reenvío de informes finales emitidos por las comisiones AIC.
+                  Revisión y reenvío de informes finales emitidos por las comisiones EYC.
                 </p>
               </div>
 
@@ -267,7 +267,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
                   className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#eff7fd] hover:bg-[#d6ecfa] text-[#0d5285] border border-[#b0dbf5] rounded-lg text-xs font-semibold transition-colors"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  <span>Nuevo AIC</span>
+                  <span>Nuevo EYC</span>
                 </button>
               </div>
             </div>
@@ -307,7 +307,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
             <table id="undersecretary-reports-table" className="w-full text-left text-xs">
               <thead className="bg-[#f8fafc] text-[#475569] uppercase font-bold tracking-wider border-b border-[#e2e8f0]">
                 <tr>
-                  <th className="px-6 py-3.5">Comisión / AIC</th>
+                  <th className="px-6 py-3.5">Comisión / EYC</th>
                   <th className="px-6 py-3.5">Archivo Oficial</th>
                   <th className="px-6 py-3.5">Fecha de Envío</th>
                   <th className="px-6 py-3.5">Estado</th>
@@ -571,14 +571,14 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
 
               <div>
                 <label className="block text-xs font-bold text-[#334155] uppercase tracking-wider mb-1">
-                  NOMBRE COMPLETO DEL REPRESENTANTE AIC
+                  NOMBRE COMPLETO DEL REPRESENTANTE EYC
                 </label>
                 <input
                   type="text"
                   required
                   value={newFullName}
                   onChange={(e) => setNewFullName(e.target.value)}
-                  placeholder="Ej. Comisión de Medio Ambiente — AIC 10-06"
+                  placeholder="Ej. Comisión de Medio Ambiente — EYC 10-06"
                   className="w-full px-3 py-2 text-xs rounded-lg border border-[#cbd5e1] focus:border-[#0f68a4] focus:ring-1 focus:ring-[#0f68a4] focus:outline-none"
                 />
               </div>
@@ -624,7 +624,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
                   required
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="aic.pnuma@sigel.edu.do"
+                  placeholder="eyc.pnuma@sigel.edu.do"
                   className="w-full px-3 py-2 text-xs rounded-lg border border-[#cbd5e1] focus:border-[#0f68a4] focus:ring-1 focus:ring-[#0f68a4] focus:outline-none"
                 />
               </div>
@@ -641,7 +641,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
                   type="submit"
                   className="px-5 py-2 bg-[#0f68a4] hover:bg-[#0d5285] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs"
                 >
-                  Crear Usuario AIC
+                  Crear Usuario EYC
                 </button>
               </div>
             </form>

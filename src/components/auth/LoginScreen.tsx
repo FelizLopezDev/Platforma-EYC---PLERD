@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import faroAColonWideImg from '../../assets/images/faro_colon_panoramic_1790044984760.jpg';
 import { User } from '../../types';
 import { DataStore } from '../../services/store';
-import { AlertCircle, Lock, Mail, ShieldAlert, LogIn } from 'lucide-react';
+import { AlertCircle, Lock, Mail, LogIn } from 'lucide-react';
 
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
@@ -86,15 +86,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       >
         {/* Card Title */}
         <div className="mb-6 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#389bd6]/15 border border-[#389bd6]/30 text-[#8ec8ec] text-[11px] font-semibold uppercase tracking-wider mb-2.5">
-            <ShieldAlert className="w-3.5 h-3.5 text-[#389bd6]" />
-            <span>Acceso Oficial Restringido</span>
-          </div>
           <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight drop-shadow-md">
             Iniciar Sesión
           </h2>
           <p className="text-xs text-[#9eb8d0] mt-1.5 leading-relaxed">
-            Plataforma institucional de radicación. Ingrese con las credenciales otorgadas por la Secretaría General.
+            Plataforma para Evaluación y Control
           </p>
         </div>
 
@@ -176,13 +172,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             )}
           </button>
         </form>
-
-        {/* Security & Policy Footer Notice */}
-        <div className="mt-5 pt-4 border-t border-white/10 text-center">
-          <p className="text-[11px] text-[#7896b2] leading-relaxed">
-            El autoregistro está desactivado. Únicamente los usuarios habilitados por el Administrador (Secretaría General) pueden acceder.
-          </p>
-        </div>
       </div>
     </div>
   );
