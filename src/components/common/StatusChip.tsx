@@ -35,6 +35,13 @@ export const StatusChip: React.FC<StatusChipProps> = ({
           border: 'border-[#b6e4ce]',
           dot: 'bg-[#0e7a52]',
         };
+      case 'reviewed':
+        return {
+          bg: 'bg-[#f1f5f9]',
+          text: 'text-[#0c1f33]',
+          border: 'border-[#cbd5e1]',
+          dot: 'bg-[#0c1f33]',
+        };
     }
   };
 

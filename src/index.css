@@ -61,3 +61,36 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+@media print {
+  header#app-header,
+  .no-print,
+  #header-user-badge,
+  #back-to-reports-btn,
+  button {
+    display: none !important;
+  }
+
+  body, html, #root, #app-root-layout, #main-content-view {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  #printable-document-container {
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #document-pdf-iframe {
+    width: 100% !important;
+    height: 100vh !important;
+    border: none !important;
+  }
+}
+

@@ -41,5 +41,39 @@ export const INITIAL_USERS: User[] = [
   },
 ];
 
-export const INITIAL_REPORTS: Report[] = [];
+export const INITIAL_REPORTS: Report[] = [
+  {
+    id: 'rep-eyc-disec-001',
+    aicId: 'user-eyc-disec',
+    aicName: 'Comisión EYC DISEC',
+    commission: 'Comisión EYC de Desarme y Seguridad Internacional (DISEC)',
+    district: 'Distrito Educativo 10-01',
+    fileName: 'Informe_Final_DISEC_MONUR_XVIII.pdf',
+    fileSize: '2.4 MB',
+    submissionDate: '2026-09-30 09:30',
+    status: 'submitted_to_undersecretary',
+    summary: 'Informe final de evaluación protocolar de DISEC. Verificación de quórum de 28 delegaciones, debate de resolución sobre desarme nuclear y control de armas convencionales. Apego pleno al reglamento parlamentario.',
+    pageCount: 2,
+    hashVerification: 'SHA256: 9e4f2a7b1c8d3e5f0a2b4c6d8e1f3a5b7c9d0e2f',
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'rep-eyc-ddhh-002',
+    aicId: 'user-eyc-ddhh',
+    aicName: 'Comisión EYC Derechos Humanos',
+    commission: 'Consejo EYC de Derechos Humanos (CDH)',
+    district: 'Distrito Educativo 10-03',
+    fileName: 'Acta_Final_Comision_Derechos_Humanos.pdf',
+    fileSize: '3.1 MB',
+    submissionDate: '2026-09-30 08:45',
+    forwardingDate: '2026-09-30 10:15',
+    undersecretaryId: 'user-sub-control',
+    undersecretaryName: 'Lic. Carlos Méndez',
+    status: 'forwarded_to_secretary_general',
+    summary: 'Acta y evaluación final de las sesiones del Consejo de Derechos Humanos. 32 delegaciones participantes, 2 proyectos de resolución aprobados por mayoría calificada. Auditoría protocolar conforme.',
+    pageCount: 2,
+    hashVerification: 'SHA256: 4a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b',
+    updatedAt: new Date().toISOString(),
+  },
+];
 

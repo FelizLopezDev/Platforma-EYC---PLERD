@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Report } from '../../types';
 import { DataStore } from '../../services/store';
 import { StatusChip } from '../common/StatusChip';
+import { ReportReviewView } from '../common/ReportReviewView';
 import {
   FileText,
   Users,
@@ -28,13 +29,12 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
   onRefreshData,
   activeView = 'reports',
 }) => {
-  const [currentTab, setCurrentTab] = useState<'reports' | 'users'>(
-    activeView === 'undersecretaries' ? 'users' : 'reports'
+  const [currentTab, setCurrentTab] = useState<'pending' | 'reviewed' | 'users'>(
+    activeView === 'undersecretaries' ? 'users' : 'pending'
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   // Subsecretary creation modal
   const [createSubModalOpen, setCreateSubModalOpen] = useState(false);
@@ -59,11 +59,21 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
 
   // Secretary General sees reports forwarded by Undersecretary
   const forwardedReports = DataStore.getForwardedReportsForSecretaryGeneral();
+  const reviewedReports = DataStore.getReviewedReportsForSecretaryGeneral();
   const allUsers = DataStore.getAllUsers();
   const aicUsers = DataStore.getAicUsers();
   const undersecretaryUsers = DataStore.getUndersecretaryUsers();
 
-  const filteredReports = forwardedReports.filter((rep) => {
+  const filteredPendingReports = forwardedReports.filter((rep) => {
+    return (
+      rep.aicName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rep.commission.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rep.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (rep.undersecretaryName && rep.undersecretaryName.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  });
+
+  const filteredReviewedReports = reviewedReports.filter((rep) => {
     return (
       rep.aicName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rep.commission.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,7 +95,14 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
 
   const handleOpenReview = (report: Report) => {
     setSelectedReport(report);
-    setReviewModalOpen(true);
+  };
+
+  const handleMarkAsReviewed = (reportId: string) => {
+    const updated = DataStore.markReportAsReviewed(reportId, user);
+    if (updated) {
+      setSelectedReport(updated);
+    }
+    onRefreshData();
   };
 
   const handleCreateUndersecretary = (e: React.FormEvent) => {
@@ -171,6 +188,21 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
     onRefreshData();
   };
 
+  // If a report is selected for review, render the dedicated institutional document reviewer
+  if (selectedReport) {
+    return (
+      <ReportReviewView
+        report={selectedReport}
+        currentUser={user}
+        onBack={() => {
+          setSelectedReport(null);
+          onRefreshData();
+        }}
+        onMarkAsReviewed={handleMarkAsReviewed}
+      />
+    );
+  }
+
   return (
     <div id="secretary-general-dashboard-root" className="space-y-6">
       {/* High-level Institutional Metrics */}
@@ -189,25 +221,25 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
 
         <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
           <div className="text-[11px] font-bold text-[#0e7a52] uppercase tracking-wider">
-            EVALUACIÓN Y CONTROL (EYC) ACTIVOS
+            INFORMES REVISADOS
           </div>
           <div className="text-3xl font-display font-bold text-[#0e7a52] mt-2 tabular-nums">
-            {aicUsers.length}
+            {reviewedReports.length}
           </div>
           <div className="text-xs text-[#0e7a52] mt-1 font-medium">
-            Activos en el modelo
+            Concluidos y archivados
           </div>
         </div>
 
         <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
           <div className="text-[11px] font-bold text-[#0f68a4] uppercase tracking-wider">
-            SUBSECRETARIOS ACTIVOS
+            EVALUACIÓN Y CONTROL (EYC)
           </div>
           <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
-            {undersecretaryUsers.length}
+            {aicUsers.length}
           </div>
           <div className="text-xs text-[#64748b] mt-1 font-medium">
-            Personal de control autorizado
+            Comisiones activas en el modelo
           </div>
         </div>
 
@@ -225,11 +257,12 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
       </div>
 
       {/* Navigation View Switcher Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#cbd5e1] pb-2">
+      <div className="flex items-center gap-2 border-b border-[#cbd5e1] pb-2 overflow-x-auto">
         <button
-          onClick={() => setCurrentTab('reports')}
-          className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
-            currentTab === 'reports'
+          id="sg-tab-pending"
+          onClick={() => setCurrentTab('pending')}
+          className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+            currentTab === 'pending'
               ? 'bg-[#0c1f33] text-white shadow-xs'
               : 'text-[#475569] hover:bg-[#e2e8f0]'
           }`}
@@ -239,15 +272,29 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
         </button>
 
         <button
+          id="sg-tab-reviewed"
+          onClick={() => setCurrentTab('reviewed')}
+          className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+            currentTab === 'reviewed'
+              ? 'bg-[#0c1f33] text-white shadow-xs'
+              : 'text-[#475569] hover:bg-[#e2e8f0]'
+          }`}
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          <span>Informes Revisados ({reviewedReports.length})</span>
+        </button>
+
+        <button
+          id="sg-tab-users"
           onClick={() => setCurrentTab('users')}
-          className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
+          className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
             currentTab === 'users'
               ? 'bg-[#0c1f33] text-white shadow-xs'
               : 'text-[#475569] hover:bg-[#e2e8f0]'
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Directorio de Usuarios Autorizados ({allUsers.length})</span>
+          <span>Directorio de Usuarios ({allUsers.length})</span>
         </button>
       </div>
 
@@ -378,8 +425,87 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
             </table>
           </div>
         </div>
+      ) : currentTab === 'reviewed' ? (
+        /* REVIEWED REPORTS (INFORMES REVISADOS) */
+        <div id="sg-reports-reviewed-section" className="bg-white rounded-xl border border-[#e2e8f0] shadow-xs overflow-hidden">
+          <div className="p-6 border-b border-[#e2e8f0] space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-display font-bold text-xl text-[#0c1f33]">
+                  Informes Revisados y Concluidos
+                </h2>
+                <p className="text-xs text-[#64748b] mt-0.5">
+                  Expedientes oficiales validados por la Secretaría General para la memoria de MONUR XVIII.
+                </p>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-[#64748b] absolute left-3 top-3 pointer-events-none" />
+              <input
+                id="sg-reviewed-reports-search-input"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar por comisión EYC, subsecretario o archivo..."
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#cbd5e1] focus:border-[#0f68a4] focus:ring-1 focus:ring-[#0f68a4] focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="divide-y divide-[#e2e8f0]">
+            {filteredReviewedReports.length === 0 ? (
+              <div className="p-12 text-center text-[#64748b] text-xs">
+                Aún no hay informes archivados en la sección de Informes Revisados. Los expedientes validados aparecerán aquí.
+              </div>
+            ) : (
+              filteredReviewedReports.map((rep) => (
+                <div
+                  key={rep.id}
+                  className="p-5 hover:bg-[#f8fafc] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h4 className="font-display font-bold text-base text-[#0c1f33]">
+                        {rep.commission}
+                      </h4>
+                      <StatusChip status={rep.status} size="sm" />
+                    </div>
+                    <div className="text-xs text-[#475569] flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="font-medium text-[#0d5285]">{rep.aicName}</span>
+                      <span>•</span>
+                      <span>{rep.district}</span>
+                      <span>•</span>
+                      <span className="font-medium text-[#0c1f33] flex items-center gap-1">
+                        <FileText className="w-3.5 h-3.5 text-[#0f68a4]" />
+                        {rep.fileName} ({rep.fileSize})
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-[#64748b] flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">
+                      <span>Radicado: <strong className="text-[#334155] font-medium">{rep.submissionDate}</strong></span>
+                      <span>•</span>
+                      <span>Revisado el: <strong className="text-[#0e7a52] font-medium">{rep.reviewedDate || '2026-09-30'}</strong> por {rep.reviewedByName || user.fullName}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center self-start md:self-center shrink-0">
+                    <button
+                      id={`view-reviewed-report-btn-${rep.id}`}
+                      onClick={() => handleOpenReview(rep)}
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white hover:bg-[#eff7fd] text-[#0d5285] border border-[#cbd5e1] hover:border-[#b0dbf5] rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>Ver informe</span>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       ) : (
-        /* FORWARDED REPORTS INBOX (DEFAULT / MAIN VIEW) */
+        /* PENDING FORWARDED REPORTS INBOX */
         <div id="sg-reports-inbox-section" className="bg-white rounded-xl border border-[#e2e8f0] shadow-xs overflow-hidden">
           <div className="p-6 border-b border-[#e2e8f0] space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -388,7 +514,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                   Informes Finales Reenviados por la Subsecretaría
                 </h2>
                 <p className="text-xs text-[#64748b] mt-0.5">
-                  Recepción definitiva para el archivo oficial y memoria de MONUR XVIII.
+                  Expedientes en espera de revisión definitiva por la Secretaría General.
                 </p>
               </div>
 
@@ -417,158 +543,55 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
             </div>
           </div>
 
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table id="secretary-reports-table" className="w-full text-left text-xs">
-              <thead className="bg-[#f8fafc] text-[#475569] uppercase font-bold tracking-wider border-b border-[#e2e8f0]">
-                <tr>
-                  <th className="px-5 py-3.5">Comisión / EYC</th>
-                  <th className="px-5 py-3.5">Archivo</th>
-                  <th className="px-5 py-3.5">Fecha de Envío</th>
-                  <th className="px-5 py-3.5">Fecha de Reenvío</th>
-                  <th className="px-5 py-3.5">Subsecretario</th>
-                  <th className="px-5 py-3.5">Estado</th>
-                  <th className="px-5 py-3.5 text-right">Acción</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e2e8f0]">
-                {filteredReports.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-[#64748b]">
-                      No hay informes reenviados actualmente por la Subsecretaría de Evaluación y Control.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredReports.map((rep) => (
-                    <tr key={rep.id} className="hover:bg-[#f8fafc]/80 transition-colors">
-                      <td className="px-5 py-4">
-                        <div className="font-bold text-[#0c1f33] text-sm">{rep.aicName}</div>
-                        <div className="text-[11px] text-[#0d5285] font-medium">{rep.commission}</div>
-                        <div className="text-[11px] text-[#64748b]">{rep.district}</div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-[#0f68a4] shrink-0" />
-                          <div>
-                            <div className="font-semibold text-[#0c1f33] truncate max-w-[180px]">
-                              {rep.fileName}
-                            </div>
-                            <div className="text-[11px] text-[#64748b]">
-                              {rep.fileSize}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 text-[#334155] tabular-nums whitespace-nowrap">
-                        {rep.submissionDate || 'N/A'}
-                      </td>
-                      <td className="px-5 py-4 text-[#0e7a52] font-semibold tabular-nums whitespace-nowrap">
-                        {rep.forwardingDate || 'N/A'}
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-[#0c1f33]">
-                          {rep.undersecretaryName || 'Lic. Rafael Mendoza Castillo'}
-                        </div>
-                        <div className="text-[11px] text-[#64748b]">
-                          Subsecretaría Control
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <StatusChip status={rep.status} size="sm" />
-                      </td>
-                      <td className="px-5 py-4 text-right">
-                        <button
-                          onClick={() => handleOpenReview(rep)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#0f68a4] hover:bg-[#0d5285] text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Expediente</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* EXPEDIENTE PREVIEW MODAL */}
-      {reviewModalOpen && selectedReport && (
-        <div
-          id="secretary-expediente-modal"
-          className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4"
-        >
-          <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#cbd5e1] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <div className="px-6 py-4 bg-[#0c1f33] text-white flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <FileCheck2 className="w-5 h-5 text-[#ecc978]" />
-                <h3 className="font-display font-bold text-base">
-                  Expediente Oficial de Comisión — MONUR XVIII
-                </h3>
+          <div className="divide-y divide-[#e2e8f0]">
+            {filteredPendingReports.length === 0 ? (
+              <div className="p-12 text-center text-[#64748b] text-xs">
+                No hay informes pendientes de revisión en la bandeja de la Secretaría General.
               </div>
-              <button
-                onClick={() => setReviewModalOpen(false)}
-                className="text-[rgba(232,242,250,0.72)] hover:text-white text-xs font-semibold px-2 py-1 rounded cursor-pointer"
-              >
-                Cerrar
-              </button>
-            </div>
+            ) : (
+              filteredPendingReports.map((rep) => (
+                <div
+                  key={rep.id}
+                  className="p-5 hover:bg-[#f8fafc] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h4 className="font-display font-bold text-base text-[#0c1f33]">
+                        {rep.commission}
+                      </h4>
+                      <StatusChip status={rep.status} size="sm" />
+                    </div>
+                    <div className="text-xs text-[#475569] flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="font-medium text-[#0d5285]">{rep.aicName}</span>
+                      <span>•</span>
+                      <span>{rep.district}</span>
+                      <span>•</span>
+                      <span className="font-medium text-[#0c1f33] flex items-center gap-1">
+                        <FileText className="w-3.5 h-3.5 text-[#0f68a4]" />
+                        {rep.fileName} ({rep.fileSize})
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-[#64748b] flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">
+                      <span>Radicado: <strong className="text-[#334155] font-medium">{rep.submissionDate || 'N/A'}</strong></span>
+                      <span>•</span>
+                      <span>Reenviado por: <strong className="text-[#0e7a52] font-medium">{rep.undersecretaryName || 'Subsecretaría'}</strong> ({rep.forwardingDate || 'N/A'})</span>
+                    </div>
+                  </div>
 
-            <div className="p-6 overflow-y-auto space-y-4">
-              <div className="p-4 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-[#64748b] font-medium uppercase tracking-wider">
-                    COMISIÓN EVALUADA
-                  </div>
-                  <div className="text-base font-bold font-display text-[#0c1f33] mt-0.5">
-                    {selectedReport.commission}
-                  </div>
-                  <div className="text-xs text-[#475569]">
-                    Radicado por: {selectedReport.aicName} · {selectedReport.district}
+                  {/* Primary review action: clearly visible without horizontal scrolling */}
+                  <div className="flex items-center self-start md:self-center shrink-0">
+                    <button
+                      id={`review-report-btn-${rep.id}`}
+                      onClick={() => handleOpenReview(rep)}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>Revisar informe</span>
+                    </button>
                   </div>
                 </div>
-                <StatusChip status={selectedReport.status} size="md" />
-              </div>
-
-              {/* Document details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
-                  <span className="text-[#64748b] block text-[10px] font-bold uppercase">ARCHIVO ADJUNTO</span>
-                  <span className="font-bold text-[#0c1f33] block mt-1">{selectedReport.fileName}</span>
-                  <span className="text-[11px] text-[#64748b]">Tamaño: {selectedReport.fileSize}</span>
-                </div>
-
-                <div className="p-3.5 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
-                  <span className="text-[#64748b] block text-[10px] font-bold uppercase">FIRMA DIGITAL & VERIFICACIÓN</span>
-                  <span className="font-mono text-[11px] text-[#0d5285] font-semibold block mt-1 truncate">
-                    {selectedReport.hashVerification || 'SHA256: 7a8f9c1b3d4e6f2a8c0d9e1f3a5b7c9d'}
-                  </span>
-                  <span className="text-[11px] text-[#0e7a52] font-medium">Sello Digital Válido</span>
-                </div>
-              </div>
-
-              {/* Summary */}
-              <div>
-                <h5 className="text-xs font-bold text-[#334155] uppercase tracking-wider mb-1.5">
-                  Resumen Ejecutivo del Informe:
-                </h5>
-                <div className="p-4 bg-[#f8fafc] border border-[#cbd5e1] rounded-xl text-xs text-[#334155] leading-relaxed">
-                  {selectedReport.summary ||
-                    'Documento oficial consolidado remitido formalmente.'}
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end">
-              <button
-                onClick={() => setReviewModalOpen(false)}
-                className="px-5 py-2 bg-[#0f68a4] hover:bg-[#0d5285] text-white rounded-lg text-xs font-semibold cursor-pointer"
-              >
-                Cerrar Expediente
-              </button>
-            </div>
+              ))
+            )}
           </div>
         </div>
       )}

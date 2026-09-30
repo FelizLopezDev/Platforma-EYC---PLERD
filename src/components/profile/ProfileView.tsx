@@ -79,7 +79,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ user }) => {
                 {user.role === 'aic'
                   ? 'Carga y envío de informe de comisión'
                   : user.role === 'undersecretary'
-                  ? 'Evaluación, reenvío y gestión de usuarios AIC'
+                  ? 'Evaluación, reenvío y gestión de usuarios EYC'
                   : 'Recepción ejecutiva y gestión de subsecretarios'}
               </span>
             </div>

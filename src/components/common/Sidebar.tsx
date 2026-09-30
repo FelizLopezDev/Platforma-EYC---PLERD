@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         return [
           { id: 'dashboard', label: 'Panel de Control', icon: <LayoutDashboard className="w-4 h-4" /> },
           { id: 'reports', label: 'Bandeja de Informes', icon: <FileText className="w-4 h-4" /> },
-          { id: 'aic-users', label: 'Gestión Usuarios AIC', icon: <Users className="w-4 h-4" /> },
+          { id: 'aic-users', label: 'Gestión Usuarios EYC', icon: <Users className="w-4 h-4" /> },
           { id: 'profile', label: 'Perfil Institucional', icon: <UserIcon className="w-4 h-4" /> },
         ];
       case 'secretary_general':
@@ -69,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       case 'undersecretary':
         return { label: 'SUBSECRETARÍA', color: 'bg-[#1d84c4]/25 text-[#b0dbf5] border-[#45a3dc]/40' };
       case 'aic':
-        return { label: 'COMISIÓN AIC', color: 'bg-[#0f446d]/40 text-[#d6ecfa] border-[#7cc2ec]/30' };
+        return { label: 'COMISIÓN EYC', color: 'bg-[#0f446d]/40 text-[#d6ecfa] border-[#7cc2ec]/30' };
     }
   };
 

@@ -208,7 +208,22 @@ export class DataStore {
       return INITIAL_REPORTS;
     }
     try {
-      return JSON.parse(raw);
+      const parsed: Report[] = JSON.parse(raw);
+      if (parsed.length === 0 && INITIAL_REPORTS.length > 0) {
+        localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(INITIAL_REPORTS));
+        return INITIAL_REPORTS;
+      }
+      let updated = false;
+      INITIAL_REPORTS.forEach((ir) => {
+        if (!parsed.some((p) => p.id === ir.id)) {
+          parsed.push(ir);
+          updated = true;
+        }
+      });
+      if (updated) {
+        localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(parsed));
+      }
+      return parsed;
     } catch {
       return INITIAL_REPORTS;
     }
@@ -227,15 +242,45 @@ export class DataStore {
   }
 
   static getSubmittedReportsForUndersecretary(): Report[] {
-    // Undersecretary sees reports that have been submitted to undersecretary or already forwarded
+    // Undersecretary sees reports that have been submitted to undersecretary or already forwarded/reviewed
     return this.getReports().filter(
-      (r) => r.status === 'submitted_to_undersecretary' || r.status === 'forwarded_to_secretary_general'
+      (r) =>
+        r.status === 'submitted_to_undersecretary' ||
+        r.status === 'forwarded_to_secretary_general' ||
+        r.status === 'reviewed'
     );
   }
 
   static getForwardedReportsForSecretaryGeneral(): Report[] {
-    // Secretary General sees reports forwarded by the Undersecretary
+    // Secretary General sees reports forwarded by the Undersecretary that are pending review
     return this.getReports().filter((r) => r.status === 'forwarded_to_secretary_general');
+  }
+
+  static getReviewedReportsForSecretaryGeneral(): Report[] {
+    // Secretary General sees reports that have been finalized and marked as reviewed
+    return this.getReports().filter((r) => r.status === 'reviewed');
+  }
+
+  static markReportAsReviewed(reportId: string, secretaryUser: User): Report | null {
+    const reports = this.getReports();
+    const index = reports.findIndex((r) => r.id === reportId);
+    if (index === -1) return null;
+
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      now.getDate()
+    ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    reports[index] = {
+      ...reports[index],
+      status: 'reviewed',
+      reviewedDate: formattedDate,
+      reviewedByName: secretaryUser.fullName,
+      updatedAt: now.toISOString(),
+    };
+
+    this.saveReports(reports);
+    return reports[index];
   }
 
   static submitAicReport(

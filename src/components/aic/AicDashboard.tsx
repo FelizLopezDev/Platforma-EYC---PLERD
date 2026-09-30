@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, Report } from '../../types';
 import { DataStore } from '../../services/store';
+import { FileStorageService } from '../../services/fileStorage';
 import { StatusChip } from '../common/StatusChip';
 import { InstitutionalLogo } from '../common/InstitutionalLogo';
+import { ReportReviewView } from '../common/ReportReviewView';
 import { 
   FileUp, 
   CheckCircle2, 
@@ -72,7 +74,7 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
     }
   };
 
-  const handleSubmitReport = (e: React.FormEvent) => {
+  const handleSubmitReport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
       setUploadError('Debe adjuntar un archivo en formato PDF o documento oficial para continuar.');
@@ -82,35 +84,53 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
     setIsSubmitting(true);
     setUploadError(null);
 
-    const fileName = selectedFile.name;
+    const fileToUpload = selectedFile;
+    const fileName = fileToUpload.name;
     const fileSize =
-      selectedFile.size >= 1024 * 1024
-        ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB`
-        : `${(selectedFile.size / 1024).toFixed(1)} KB`;
+      fileToUpload.size >= 1024 * 1024
+        ? `${(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB`
+        : `${(fileToUpload.size / 1024).toFixed(1)} KB`;
 
-    // Create a local blob URL for instant previewing and downloading of the user's real file
-    const fileUrl = URL.createObjectURL(selectedFile);
-
-    setTimeout(() => {
-      DataStore.submitAicReport(user, {
+    try {
+      const submitted = DataStore.submitAicReport(user, {
         fileName,
         fileSize,
-        fileUrl,
         summary: `Documento oficial radicado por ${user.commission || user.fullName}`,
         pageCount: 1,
       });
+
+      // Persist the actual real file into FileStorageService (IndexedDB + Blob cache)
+      const liveFileUrl = await FileStorageService.saveFile(submitted.id, fileToUpload, fileName);
+      
+      // Update store with live file URL reference
+      DataStore.setCachedFileUrl(submitted.id, liveFileUrl);
 
       setSubmittedFileName(fileName);
       setSelectedFile(null);
       setIsSubmitting(false);
       setShowSuccessOverlay(true);
       onRefreshData();
-    }, 450);
+    } catch (err) {
+      console.error('Error al guardar archivo:', err);
+      setIsSubmitting(false);
+      setUploadError('Ocurrió un error al procesar el archivo. Por favor intente nuevamente.');
+    }
   };
+
+  // If viewing the document, render the dedicated institutional document reviewer
+  if (previewModalOpen && report) {
+    return (
+      <ReportReviewView
+        report={report}
+        currentUser={user}
+        onBack={() => setPreviewModalOpen(false)}
+      />
+    );
+  }
 
   return (
     <div id="aic-dashboard-container" className="space-y-6">
-      {/* AIC Identification Banner */}
+      {/* EYC Identification Banner */}
       <div
         id="aic-identity-card"
         className="bg-white rounded-xl p-6 border border-[#e2e8f0] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
@@ -273,128 +293,6 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
           </form>
         </div>
       </div>
-
-      {/* Institutional Document Preview Modal */}
-      {previewModalOpen && (
-        <div
-          id="aic-doc-preview-modal"
-          className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4"
-        >
-          <div className="bg-white rounded-xl max-w-2xl w-full border border-[#cbd5e1] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 bg-[#0c1f33] text-white flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <FileText className="w-5 h-5 text-[#ecc978]" />
-                <h3 className="font-display font-bold text-base">
-                  Visualizador Institucional de Documento
-                </h3>
-              </div>
-              <button
-                onClick={() => setPreviewModalOpen(false)}
-                className="text-[rgba(232,242,250,0.72)] hover:text-white text-xs font-semibold px-2 py-1 rounded cursor-pointer"
-              >
-                Cerrar
-              </button>
-            </div>
-
-            <div className="p-6 overflow-y-auto space-y-4 text-sm text-[#334155]">
-              <div className="text-center p-5 bg-[#f8fafc] rounded-lg border border-[#e2e8f0] space-y-1.5">
-                <div className="flex justify-center mb-1">
-                  <InstitutionalLogo size={52} theme="dark" />
-                </div>
-                <div className="font-display font-bold text-lg text-[#0c1f33]">
-                  CLUB ESCOLAR REGIONAL 10 — MONUR XVIII
-                </div>
-                <div className="text-xs font-semibold text-[#0d5285] uppercase tracking-wider">
-                  {user.commission || user.fullName}
-                </div>
-                <div className="text-xs text-[#64748b]">
-                  {report?.fileName}
-                </div>
-              </div>
-
-              {/* Real PDF or Document Preview */}
-              {(() => {
-                const activeFileUrl = report?.fileUrl || (report?.id ? DataStore.getCachedFileUrl(report.id) : undefined);
-                const isPdf = report?.fileName?.toLowerCase().endsWith('.pdf');
-
-                if (activeFileUrl && isPdf) {
-                  return (
-                    <div className="rounded-lg overflow-hidden border border-[#cbd5e1] bg-slate-100">
-                      <object
-                        data={activeFileUrl}
-                        type="application/pdf"
-                        className="w-full h-80 sm:h-96"
-                      >
-                        <div className="p-6 text-center text-xs text-[#64748b]">
-                          La previsualización está lista para descarga en su equipo.
-                        </div>
-                      </object>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-
-              <div className="space-y-3">
-                <h4 className="font-bold text-sm text-[#0c1f33] border-b pb-1">
-                  Detalles Oficiales del Documento Radicado
-                </h4>
-                <div className="text-xs space-y-2 text-[#475569]">
-                  <div className="flex items-center justify-between py-1 border-b border-[#f1f5f9]">
-                    <span className="text-[#64748b]">Archivo:</span>
-                    <span className="font-semibold text-[#0c1f33]">{report?.fileName}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-b border-[#f1f5f9]">
-                    <span className="text-[#64748b]">Tamaño verificado:</span>
-                    <span className="font-medium text-[#0c1f33]">{report?.fileSize}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-b border-[#f1f5f9]">
-                    <span className="text-[#64748b]">Fecha de transmisión:</span>
-                    <span className="font-medium text-[#0c1f33]">{report?.submissionDate}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-b border-[#f1f5f9]">
-                    <span className="text-[#64748b]">Comisión emisora:</span>
-                    <span className="font-medium text-[#0c1f33]">{user.commission || user.fullName}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-b border-[#f1f5f9]">
-                    <span className="text-[#64748b]">Distrito escolar:</span>
-                    <span className="font-medium text-[#0c1f33]">{user.district}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-b border-[#f1f5f9]">
-                    <span className="text-[#64748b]">Sello criptográfico:</span>
-                    <span className="font-mono text-[11px] text-[#0f68a4]">{report?.hashVerification}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex items-center justify-between gap-3">
-              {(() => {
-                const activeFileUrl = report?.fileUrl || (report?.id ? DataStore.getCachedFileUrl(report.id) : undefined);
-                if (activeFileUrl) {
-                  return (
-                    <a
-                      href={activeFileUrl}
-                      download={report?.fileName || 'documento_oficial.pdf'}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#eff7fd] text-[#0d5285] border border-[#b0dbf5] rounded-lg text-xs font-semibold cursor-pointer transition-colors"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Descargar archivo</span>
-                    </a>
-                  );
-                }
-                return <div />;
-              })()}
-              <button
-                onClick={() => setPreviewModalOpen(false)}
-                className="px-4 py-2 bg-[#0f68a4] text-white rounded-lg text-xs font-semibold hover:bg-[#0d5285] cursor-pointer"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Subtle screen darkening & rising green check circle animation upon document submission */}
       <AnimatePresence>

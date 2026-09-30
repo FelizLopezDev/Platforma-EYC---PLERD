@@ -3,7 +3,8 @@ export type UserRole = 'aic' | 'undersecretary' | 'secretary_general';
 export type ReportStatus = 
   | 'pending'
   | 'submitted_to_undersecretary'
-  | 'forwarded_to_secretary_general';
+  | 'forwarded_to_secretary_general'
+  | 'reviewed';
 
 export interface User {
   id: string;
@@ -28,6 +29,8 @@ export interface Report {
   fileUrl?: string;
   submissionDate?: string;
   forwardingDate?: string;
+  reviewedDate?: string;
+  reviewedByName?: string;
   undersecretaryId?: string;
   undersecretaryName?: string;
   status: ReportStatus;
@@ -41,6 +44,7 @@ export const STATUS_LABELS: Record<ReportStatus, string> = {
   pending: 'Pendiente de envío',
   submitted_to_undersecretary: 'Enviado a Subsecretaría',
   forwarded_to_secretary_general: 'Reenviado a Secretaría General',
+  reviewed: 'Revisado',
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {

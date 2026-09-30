@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Report } from '../../types';
 import { DataStore } from '../../services/store';
 import { StatusChip } from '../common/StatusChip';
+import { ReportReviewView } from '../common/ReportReviewView';
 import {
   FileText,
   Send,
@@ -36,9 +37,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [isForwarding, setIsForwarding] = useState(false);
-  const [forwardSuccessMessage, setForwardSuccessMessage] = useState<string | null>(null);
 
   // User management states
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -73,19 +72,14 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
 
   const handleOpenReview = (report: Report) => {
     setSelectedReport(report);
-    setForwardSuccessMessage(null);
-    setReviewModalOpen(true);
   };
 
-  const handleForwardToSecretaryGeneral = () => {
-    if (!selectedReport) return;
+  const handleForwardToSecretaryGeneral = (reportId: string) => {
     setIsForwarding(true);
-
     setTimeout(() => {
-      const updated = DataStore.forwardReportToSecretaryGeneral(selectedReport.id, user);
+      const updated = DataStore.forwardReportToSecretaryGeneral(reportId, user);
       if (updated) {
         setSelectedReport(updated);
-        setForwardSuccessMessage('El informe fue reenviado formalmente a la Secretaría General.');
       }
       setIsForwarding(false);
       onRefreshData();
@@ -124,6 +118,22 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
       onRefreshData();
     }, 900);
   };
+
+  // If a report is selected, render the dedicated authentic review experience
+  if (selectedReport) {
+    return (
+      <ReportReviewView
+        report={selectedReport}
+        currentUser={user}
+        onBack={() => {
+          setSelectedReport(null);
+          onRefreshData();
+        }}
+        onForwardToSecretaryGeneral={handleForwardToSecretaryGeneral}
+        isForwarding={isForwarding}
+      />
+    );
+  }
 
   return (
     <div id="undersecretary-dashboard-root" className="space-y-6">
@@ -178,9 +188,9 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
         </div>
       </div>
 
-      {/* Main Section toggle: either Reports Inbox or AIC User Management */}
+      {/* Main Section toggle: either Reports Inbox or EYC User Management */}
       {activeView === 'aic-users' ? (
-        /* USER MANAGEMENT VIEW FOR AIC USERS */
+        /* USER MANAGEMENT VIEW FOR EYC USERS */
         <div id="undersecretary-aic-management-section" className="bg-white rounded-xl border border-[#e2e8f0] shadow-xs overflow-hidden">
           <div className="p-6 border-b border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -202,7 +212,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
             </button>
           </div>
 
-          {/* AIC Users Table */}
+          {/* EYC Users Table */}
           <div className="overflow-x-auto">
             <table id="aic-users-table" className="w-full text-left text-xs">
               <thead className="bg-[#f8fafc] text-[#475569] uppercase font-bold tracking-wider border-b border-[#e2e8f0]">
@@ -302,240 +312,82 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
             </div>
           </div>
 
-          {/* Table of Reports - strictly showing: AIC, File name, Submission date, Status, Open/review action */}
-          <div className="overflow-x-auto">
-            <table id="undersecretary-reports-table" className="w-full text-left text-xs">
-              <thead className="bg-[#f8fafc] text-[#475569] uppercase font-bold tracking-wider border-b border-[#e2e8f0]">
-                <tr>
-                  <th className="px-6 py-3.5">Comisión / EYC</th>
-                  <th className="px-6 py-3.5">Archivo Oficial</th>
-                  <th className="px-6 py-3.5">Fecha de Envío</th>
-                  <th className="px-6 py-3.5">Estado</th>
-                  <th className="px-6 py-3.5 text-right">Acción</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e2e8f0]">
-                {filteredReports.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-[#64748b]">
-                      No se encontraron informes en la bandeja con los filtros seleccionados.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredReports.map((rep) => (
-                    <tr key={rep.id} className="hover:bg-[#f8fafc]/80 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-[#0c1f33] text-sm">{rep.aicName}</div>
-                        <div className="text-[11px] text-[#0d5285] font-medium">{rep.commission}</div>
-                        <div className="text-[11px] text-[#64748b]">{rep.district}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-[#0f68a4] shrink-0" />
-                          <div>
-                            <div className="font-semibold text-[#0c1f33] truncate max-w-[220px]">
-                              {rep.fileName || 'DOCUMENTO_PENDIENTE.pdf'}
-                            </div>
-                            <div className="text-[11px] text-[#64748b]">
-                              {rep.fileSize || '3.2 MB'}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-[#334155] tabular-nums whitespace-nowrap">
-                        {rep.submissionDate || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusChip status={rep.status} size="sm" />
-                      </td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <button
-                          id={`review-report-btn-${rep.id}`}
-                          onClick={() => handleOpenReview(rep)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0f68a4] hover:bg-[#0d5285] text-white rounded-lg text-xs font-semibold transition-colors shadow-xs"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Revisar Informe</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* DOCUMENT REVIEW & FORWARDING MODAL */}
-      {reviewModalOpen && selectedReport && (
-        <div
-          id="report-review-modal"
-          className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4"
-        >
-          <div className="bg-white rounded-2xl max-w-3xl w-full border border-[#cbd5e1] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Modal Header */}
-            <div className="px-6 py-4 bg-[#0c1f33] text-white flex items-center justify-between border-b border-[#10395b]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#10395b] text-[#ecc978] flex items-center justify-center border border-[#c9972b]/30">
-                  <FileCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-base text-white">
-                    Revisión de Informe Final — Subsecretaría
-                  </h3>
-                  <div className="text-[11px] text-[#ecc978]">
-                    Control Institucional MONUR XVIII
-                  </div>
-                </div>
+          {/* Reports List - responsive card rows with prominent action button */}
+          <div className="divide-y divide-[#e2e8f0]">
+            {filteredReports.length === 0 ? (
+              <div className="p-12 text-center text-[#64748b] text-xs">
+                No se encontraron informes en la bandeja con los filtros seleccionados.
               </div>
-              <button
-                onClick={() => setReviewModalOpen(false)}
-                className="text-[rgba(232,242,250,0.72)] hover:text-white text-xs font-semibold px-2 py-1 rounded"
-              >
-                Cerrar
-              </button>
-            </div>
+            ) : (
+              filteredReports.map((rep) => {
+                const isPendingForward = rep.status === 'submitted_to_undersecretary';
 
-            {/* Modal Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-              {/* Success alert when forwarded */}
-              {forwardSuccessMessage && (
-                <div
-                  id="forward-success-alert"
-                  className="p-4 bg-[#e6f7ef] border border-[#b6e4ce] rounded-xl flex items-start gap-3"
-                >
-                  <CheckCircle2 className="w-5 h-5 text-[#0e7a52] shrink-0 mt-0.5" />
-                  <div className="text-xs text-[#0e7a52] font-semibold leading-relaxed">
-                    {forwardSuccessMessage}
-                  </div>
-                </div>
-              )}
-
-              {/* Document identification header */}
-              <div className="p-5 bg-[#f8fafc] rounded-xl border border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748b]">
-                    COMISIÓN EMISORA
-                  </span>
-                  <h4 className="font-display font-bold text-lg text-[#0c1f33]">
-                    {selectedReport.aicName}
-                  </h4>
-                  <p className="text-xs text-[#0d5285] font-medium">
-                    {selectedReport.commission} · {selectedReport.district}
-                  </p>
-                </div>
-
-                <StatusChip status={selectedReport.status} />
-              </div>
-
-              {/* Metadata Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
-                  <span className="text-[#64748b] block text-[10px] uppercase font-bold">
-                    NOMBRE DE ARCHIVO
-                  </span>
-                  <span className="font-semibold text-[#0c1f33] block mt-1 truncate">
-                    {selectedReport.fileName}
-                  </span>
-                  <span className="text-[11px] text-[#64748b]">
-                    {selectedReport.fileSize}
-                  </span>
-                </div>
-
-                <div className="p-3 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
-                  <span className="text-[#64748b] block text-[10px] uppercase font-bold">
-                    FECHA DE ENVÍO POR AIC
-                  </span>
-                  <span className="font-semibold text-[#0c1f33] block mt-1 tabular-nums">
-                    {selectedReport.submissionDate}
-                  </span>
-                  <span className="text-[11px] text-[#0e7a52] font-medium">
-                    Radicado oficial
-                  </span>
-                </div>
-
-                <div className="p-3 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
-                  <span className="text-[#64748b] block text-[10px] uppercase font-bold">
-                    REVISADO POR
-                  </span>
-                  <span className="font-semibold text-[#0c1f33] block mt-1 truncate">
-                    {selectedReport.undersecretaryName || user.fullName}
-                  </span>
-                  <span className="text-[11px] text-[#64748b]">
-                    Subsecretaría
-                  </span>
-                </div>
-              </div>
-
-              {/* Summary / Actas */}
-              <div className="space-y-2">
-                <h5 className="text-xs font-bold text-[#334155] uppercase tracking-wider">
-                  Resumen Ejecutivo y Actas Remitidas:
-                </h5>
-                <div className="p-4 bg-[#f8fafc] border border-[#cbd5e1] rounded-xl text-xs text-[#334155] leading-relaxed">
-                  {selectedReport.summary ||
-                    'Informe final remitido por la comisión conteniendo acta general de sesiones, registro de asistencia de delegaciones participantes y acuerdos suscritos.'}
-                </div>
-              </div>
-
-              {/* Forwarding Status Info if already forwarded */}
-              {selectedReport.status === 'forwarded_to_secretary_general' && (
-                <div className="p-4 bg-[#e6f7ef] border border-[#b6e4ce] rounded-xl text-xs space-y-1">
-                  <div className="font-bold text-[#0e7a52] flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Informe ya reenviado a la Secretaría General</span>
-                  </div>
-                  <div className="text-[#0f172a] text-[11px]">
-                    Reenviado el: <span className="font-bold tabular-nums">{selectedReport.forwardingDate}</span> por el Subsecretario {selectedReport.undersecretaryName || user.fullName}.
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer with PROMINENT ACTION: "Forward to Secretary General" */}
-            <div className="p-5 bg-[#f8fafc] border-t border-[#e2e8f0] flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs text-[#64748b]">
-                {selectedReport.status === 'forwarded_to_secretary_general'
-                  ? 'Trámite concluido para esta etapa.'
-                  : 'Este informe pasará a la bandeja directa del Secretario General.'}
-              </div>
-
-              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                <button
-                  onClick={() => setReviewModalOpen(false)}
-                  className="px-4 py-2.5 text-xs font-semibold text-[#475569] hover:bg-[#e2e8f0] rounded-lg transition-colors"
-                >
-                  Cerrar
-                </button>
-
-                {selectedReport.status === 'submitted_to_undersecretary' && (
-                  <button
-                    id="forward-to-secretary-general-btn"
-                    onClick={handleForwardToSecretaryGeneral}
-                    disabled={isForwarding}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white font-semibold rounded-lg text-xs transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                return (
+                  <div
+                    key={rep.id}
+                    className="p-5 hover:bg-[#f8fafc] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
                   >
-                    {isForwarding ? (
-                      <span>Reenviando trámite...</span>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Reenviar a Secretaría General</span>
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <h4 className="font-display font-bold text-base text-[#0c1f33]">
+                          {rep.commission}
+                        </h4>
+                        <StatusChip status={rep.status} size="sm" />
+                      </div>
+                      <div className="text-xs text-[#475569] flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="font-medium text-[#0d5285]">{rep.aicName}</span>
+                        <span>•</span>
+                        <span>{rep.district}</span>
+                        <span>•</span>
+                        <span className="font-medium text-[#0c1f33] flex items-center gap-1">
+                          <FileText className="w-3.5 h-3.5 text-[#0f68a4]" />
+                          {rep.fileName || 'documento.pdf'} ({rep.fileSize || '2.4 MB'})
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-[#64748b] flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">
+                        <span>Radicado: <strong className="text-[#334155] font-medium">{rep.submissionDate || 'N/A'}</strong></span>
+                        {rep.forwardingDate && (
+                          <>
+                            <span>•</span>
+                            <span>Reenviado el: <strong className="text-[#0e7a52] font-medium">{rep.forwardingDate}</strong></span>
+                          </>
+                        )}
+                        {rep.reviewedDate && (
+                          <>
+                            <span>•</span>
+                            <span>Revisado el: <strong className="text-[#0c1f33] font-medium">{rep.reviewedDate}</strong></span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Primary review action: clearly visible without horizontal scrolling */}
+                    <div className="flex items-center self-start md:self-center shrink-0">
+                      <button
+                        id={`review-report-btn-${rep.id}`}
+                        onClick={() => handleOpenReview(rep)}
+                        className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer ${
+                          isPendingForward
+                            ? 'bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white'
+                            : 'bg-white hover:bg-[#eff7fd] text-[#0d5285] border border-[#cbd5e1] hover:border-[#b0dbf5]'
+                        }`}
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>{isPendingForward ? 'Revisar informe' : 'Ver informe'}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       )}
 
-      {/* CREATE AIC USER MODAL */}
+      {/* CREATE EYC USER MODAL */}
       {createModalOpen && (
         <div
-          id="create-aic-modal"
+          id="create-eyc-modal"
           className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4"
         >
           <div className="bg-white rounded-2xl max-w-lg w-full border border-[#cbd5e1] shadow-2xl overflow-hidden">
@@ -543,12 +395,12 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
               <div className="flex items-center gap-2.5">
                 <UserPlus className="w-5 h-5 text-[#ecc978]" />
                 <h3 className="font-display font-bold text-base">
-                  Crear Nuevo Usuario AIC
+                  Crear Nuevo Usuario EYC
                 </h3>
               </div>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="text-[rgba(232,242,250,0.72)] hover:text-white text-xs font-semibold px-2 py-1 rounded"
+                className="text-[rgba(232,242,250,0.72)] hover:text-white text-xs font-semibold px-2 py-1 rounded cursor-pointer"
               >
                 Cancelar
               </button>

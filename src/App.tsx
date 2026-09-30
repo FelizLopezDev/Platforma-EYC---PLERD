@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, UserRole } from './types';
 import { DataStore } from './services/store';
+import { FileStorageService } from './services/fileStorage';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { Header } from './components/common/Header';
 import { AicDashboard } from './components/aic/AicDashboard';
@@ -17,6 +18,10 @@ export default function App() {
     return DataStore.getSessionUser();
   });
   const [dataVersion, setDataVersion] = useState<number>(0);
+
+  useEffect(() => {
+    FileStorageService.seedDemoFilesIfMissing().catch(console.error);
+  }, []);
 
   // Trigger re-render whenever store updates
   const handleRefreshData = () => {
@@ -70,7 +75,7 @@ export default function App() {
       />
 
       {/* Main Single Screen Content Area */}
-      <main id="main-content-view" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto">
+      <main id="main-content-view" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto">
         {currentUser.role === 'aic' && (
           <AicDashboard
             key={`${currentUser.id}-${dataVersion}`}
