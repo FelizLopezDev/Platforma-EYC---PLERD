@@ -58,7 +58,7 @@ export const INITIAL_REPORTS: Report[] = [
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'rep-eyc-ddhh-002',
+    id: 'rep-eyc-ddhh-002', 
     aicId: 'user-eyc-ddhh',
     aicName: 'Comisión EYC Derechos Humanos',
     commission: 'Consejo EYC de Derechos Humanos (CDH)',
