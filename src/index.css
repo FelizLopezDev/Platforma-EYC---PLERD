@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+
+    /* Azul institucional */
+    --brand-50: #eff7fd;
+    --brand-100: #d6ecfa;
+    --brand-200: #b0dbf5;
+    --brand-300: #7cc2ec;
+    --brand-400: #45a3dc;
+    --brand-500: #1d84c4;
+    --brand-600: #0f68a4;
+    --brand-700: #0d5285;
+    --brand-800: #0f446d;
+    --brand-900: #10395b;
+    --brand-950: #08243c;
+
+    /* Oro protocolar */
+    --gold-100: #fbf1d9;
+    --gold-300: #ecc978;
+    --gold-500: #c9972b;
+    --gold-600: #a67b1d;
+    --gold-700: #7d5c15;
+
+    /* Superficie Ink */
+    --ink: #0c1f33;
+    --ink-2: #0a1a2b;
+
+    /* Estados semánticos */
+    --ok: #0e7a52;
+    --ok-bg: #e6f7ef;
+    --ok-border: #b6e4ce;
+
+    --warn: #97650b;
+    --warn-bg: #fdf4e0;
+    --warn-border: #f0d9a3;
+
+    --err: #b23b31;
+    --err-bg: #fdeeec;
+    --err-border: #f5c9c4;
+
+    --info: #0f68a4;
+    --info-bg: #eff7fd;
+    --info-border: #b0dbf5;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: #0f172a;
+    background-color: #f8fafc;
+  }
+
+  h1, h2, h3, h4, .font-heading, .font-display {
+    font-family: var(--font-display);
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}

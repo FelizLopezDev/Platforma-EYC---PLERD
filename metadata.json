@@ -1,0 +1,6 @@
+{
+  "name": "SIGEL CELIDER 10",
+  "description": "Sistema institucional de gestión y reenvío de informes finales de los AIC para MONUR XVIII — Club Escolar Regional 10 (MINERD / PLE-RD).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
