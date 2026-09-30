@@ -26,6 +26,8 @@ export interface Report {
   district: string;
   fileName: string;
   fileSize: string;
+  fileType?: string;
+  file?: File | Blob;
   fileUrl?: string;
   submissionDate?: string;
   forwardingDate?: string;

@@ -19,6 +19,7 @@ export interface StoredDoc {
 // In-memory cache for fast synchronous access & active Object URLs
 const blobCache = new Map<string, Blob>();
 const urlCache = new Map<string, string>();
+const fileInstanceCache = new Map<string, File | Blob>();
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -200,6 +201,7 @@ export class FileStorageService {
 
     blobCache.set(reportId, blob);
     urlCache.set(reportId, url);
+    fileInstanceCache.set(reportId, file);
 
     try {
       const db = await getDB();
@@ -293,6 +295,26 @@ export class FileStorageService {
     } catch {}
 
     return null;
+  }
+
+  /**
+   * Gets the File or Blob instance for a report.
+   * Checks in-memory cache first, then fetches Blob from IndexedDB.
+   */
+  static async getFile(reportId: string): Promise<File | Blob | null> {
+    if (fileInstanceCache.has(reportId)) {
+      return fileInstanceCache.get(reportId)!;
+    }
+    const blob = await this.getBlob(reportId);
+    if (blob) {
+      fileInstanceCache.set(reportId, blob);
+      return blob;
+    }
+    return null;
+  }
+
+  static getCachedFile(reportId: string): File | Blob | null {
+    return fileInstanceCache.get(reportId) || null;
   }
 
   /**

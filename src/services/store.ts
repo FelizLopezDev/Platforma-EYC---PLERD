@@ -19,6 +19,17 @@ export class DataStore {
   // In-memory cache for live file object URLs (supports viewing/downloading actual files)
   private static fileUrlCache = new Map<string, string>();
 
+  // In-memory cache for live file instances (File or Blob)
+  private static fileInstanceMap = new Map<string, File | Blob>();
+
+  static setLiveFile(reportId: string, file: File | Blob) {
+    this.fileInstanceMap.set(reportId, file);
+  }
+
+  static getLiveFile(reportId: string): File | Blob | undefined {
+    return this.fileInstanceMap.get(reportId);
+  }
+
   static setCachedFileUrl(key: string, url: string) {
     this.fileUrlCache.set(key, url);
   }
@@ -211,7 +222,15 @@ export class DataStore {
       const parsed: Report[] = JSON.parse(raw);
       if (parsed.length === 0 && INITIAL_REPORTS.length > 0) {
         localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(INITIAL_REPORTS));
-        return INITIAL_REPORTS;
+        return INITIAL_REPORTS.map((r) => {
+          const liveFile = this.getLiveFile(r.id);
+          const liveUrl = this.getCachedFileUrl(r.id);
+          return {
+            ...r,
+            file: liveFile || r.file,
+            fileUrl: liveUrl || r.fileUrl,
+          };
+        });
       }
       let updated = false;
       INITIAL_REPORTS.forEach((ir) => {
@@ -223,7 +242,15 @@ export class DataStore {
       if (updated) {
         localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(parsed));
       }
-      return parsed;
+      return parsed.map((r) => {
+        const liveFile = this.getLiveFile(r.id);
+        const liveUrl = this.getCachedFileUrl(r.id);
+        return {
+          ...r,
+          file: liveFile || r.file,
+          fileUrl: liveUrl || r.fileUrl,
+        };
+      });
     } catch {
       return INITIAL_REPORTS;
     }
@@ -288,6 +315,8 @@ export class DataStore {
     data: {
       fileName: string;
       fileSize: string;
+      fileType?: string;
+      file?: File | Blob;
       fileUrl?: string;
       summary?: string;
       pageCount?: number;
@@ -299,20 +328,26 @@ export class DataStore {
       now.getDate()
     ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-    const reportId = `rep-${Date.now()}`;
+    const existingIndex = reports.findIndex((r) => r.aicId === aicUser.id);
+    const reportId = existingIndex >= 0 ? reports[existingIndex].id : `rep-${Date.now()}`;
+
     if (data.fileUrl) {
       this.setCachedFileUrl(reportId, data.fileUrl);
     }
+    if (data.file) {
+      this.setLiveFile(reportId, data.file);
+    }
 
-    const existingIndex = reports.findIndex((r) => r.aicId === aicUser.id);
     const updatedReport: Report = {
-      id: existingIndex >= 0 ? reports[existingIndex].id : reportId,
+      id: reportId,
       aicId: aicUser.id,
       aicName: aicUser.fullName,
       commission: aicUser.commission || 'Comisión Regional',
       district: aicUser.district || 'Distrito Regional 10',
       fileName: data.fileName,
       fileSize: data.fileSize,
+      fileType: data.fileType || (data.file instanceof File ? data.file.type : 'application/pdf'),
+      file: data.file,
       fileUrl: data.fileUrl,
       summary: data.summary || `Informe oficial cargado: ${data.fileName}`,
       pageCount: data.pageCount || 1,

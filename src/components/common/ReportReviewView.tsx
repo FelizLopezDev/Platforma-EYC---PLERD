@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Report } from '../../types';
 import { StatusChip } from './StatusChip';
 import { FileStorageService } from '../../services/fileStorage';
+import { DataStore } from '../../services/store';
+import { PdfViewer } from './PdfViewer';
 import {
   ArrowLeft,
   Send,
@@ -36,11 +38,11 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
   onMarkAsReviewed,
   isForwarding = false,
 }) => {
+  const [activeFile, setActiveFile] = useState<File | Blob | string | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [isLoadingFile, setIsLoadingFile] = useState(true);
   const [forwardSuccess, setForwardSuccess] = useState(false);
   const [reviewedSuccess, setReviewedSuccess] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Load the actual real uploaded document file
   useEffect(() => {
@@ -48,21 +50,43 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
 
     async function loadActualDocument() {
       setIsLoadingFile(true);
-      try {
-        let url = await FileStorageService.getFileUrl(report.id);
-        if (!url && report.fileUrl) {
-          url = report.fileUrl;
-        }
+
+      // 1. First priority: live File/Blob directly attached to report object or stored in DataStore
+      const liveFile = report.file || DataStore.getLiveFile(report.id) || FileStorageService.getCachedFile(report.id);
+      if (liveFile) {
         if (isMounted) {
-          setFileUrl(url);
+          setActiveFile(liveFile);
           setIsLoadingFile(false);
+        }
+        return;
+      }
+
+      // 2. Second priority: get Blob from FileStorageService (IndexedDB)
+      try {
+        const storedBlob = await FileStorageService.getFile(report.id);
+        if (storedBlob && isMounted) {
+          setActiveFile(storedBlob);
+          setIsLoadingFile(false);
+          return;
         }
       } catch (err) {
-        console.error('Error cargando archivo:', err);
-        if (isMounted) {
-          setFileUrl(null);
-          setIsLoadingFile(false);
+        console.warn('Could not read file from storage:', err);
+      }
+
+      // 3. Third priority: fileUrl
+      let url = await FileStorageService.getFileUrl(report.id);
+      if (!url && report.fileUrl) {
+        url = report.fileUrl;
+      }
+
+      if (isMounted) {
+        if (url) {
+          setActiveFile(url);
+          setFileUrl(url);
+        } else {
+          setActiveFile(null);
         }
+        setIsLoadingFile(false);
       }
     }
 
@@ -71,7 +95,7 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [report.id, report.fileUrl]);
+  }, [report.id, report.file, report.fileUrl]);
 
   const canForward =
     currentUser.role === 'undersecretary' &&
@@ -101,18 +125,29 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
     }
   };
 
-  const handlePrint = () => {
-    // If an embedded iframe exists, print directly from the document's content window
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      try {
-        iframeRef.current.contentWindow.focus();
-        iframeRef.current.contentWindow.print();
-        return;
-      } catch (e) {
-        console.warn('Iframe print direct call failed, using window.print()', e);
-      }
-    }
+  const handleDownload = () => {
+    if (!activeFile) return;
 
+    if (activeFile instanceof Blob) {
+      const url = URL.createObjectURL(activeFile);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = report.fileName || (activeFile instanceof File ? activeFile.name : 'informe_oficial.pdf');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    } else if (typeof activeFile === 'string') {
+      const a = document.createElement('a');
+      a.href = activeFile;
+      a.download = report.fileName || 'informe_oficial.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
+
+  const handlePrint = () => {
     // Native browser print dialog
     window.print();
   };
@@ -151,17 +186,16 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
 
         {/* Action Controls in Top Header */}
         <div className="flex items-center gap-2.5 self-end sm:self-auto">
-          {fileUrl && (
-            <a
+          {activeFile && (
+            <button
               id="header-download-doc-btn"
-              href={fileUrl}
-              download={report.fileName || 'informe_oficial.pdf'}
+              onClick={handleDownload}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#475569] hover:text-[#0c1f33] bg-white hover:bg-[#f8fafc] border border-[#cbd5e1] rounded-lg transition-colors cursor-pointer shadow-2xs"
               title="Descargar documento a su equipo"
             >
               <Download className="w-4 h-4 text-[#64748b]" />
               <span className="hidden md:inline">Descargar Archivo</span>
-            </a>
+            </button>
           )}
 
           <button
@@ -246,73 +280,12 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: ACTUAL UPLOADED DOCUMENT VIEWER */}
         <div className="lg:col-span-8 space-y-4">
-          <div
-            id="printable-document-container"
-            className="w-full bg-white rounded-xl border border-[#cbd5e1] overflow-hidden shadow-xs flex flex-col min-h-[760px] sm:min-h-[860px]"
-          >
-            {/* Top Toolbar of Document Container */}
-            <div className="px-4 py-3 bg-[#0c1f33] text-white flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#10395b] no-print">
-              <div className="flex items-center gap-2.5 truncate mr-2">
-                <FileText className="w-4 h-4 text-[#ecc978] shrink-0" />
-                <span className="font-semibold truncate">
-                  {report.fileName || 'Documento Oficial'}
-                </span>
-                <span className="text-[11px] text-[#9eb8d0] shrink-0">
-                  ({report.fileSize || 'PDF'})
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {fileUrl && (
-                  <a
-                    href={fileUrl}
-                    download={report.fileName || 'informe.pdf'}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded text-xs font-medium transition-colors"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Descargar</span>
-                  </a>
-                )}
-                <button
-                  onClick={handlePrint}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0f68a4] hover:bg-[#0d5285] text-white rounded text-xs font-semibold transition-colors cursor-pointer"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Imprimir</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Embedded Native Document Viewport */}
-            <div className="flex-1 bg-[#525659] flex flex-col items-center justify-center relative min-h-[700px]">
-              {isLoadingFile ? (
-                <div className="text-white text-center space-y-2 p-8">
-                  <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
-                  <p className="text-xs font-medium">Cargando documento original...</p>
-                </div>
-              ) : fileUrl ? (
-                <iframe
-                  ref={iframeRef}
-                  id="document-pdf-iframe"
-                  src={`${fileUrl}#toolbar=1&navpanes=0`}
-                  title={report.fileName || 'Documento Oficial'}
-                  className="w-full h-full min-h-[700px] border-0 flex-1 bg-white"
-                />
-              ) : (
-                /* Clear empty/error state when no document was uploaded */
-                <div className="bg-white rounded-xl p-8 sm:p-12 border border-[#e2e8f0] text-center max-w-md m-6 space-y-3 shadow-sm">
-                  <div className="w-12 h-12 rounded-full bg-[#fdeeec] text-[#b23b31] flex items-center justify-center mx-auto">
-                    <AlertCircle className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-display font-bold text-lg text-[#0c1f33]">
-                    No hay documento adjunto a este informe
-                  </h3>
-                  <p className="text-xs text-[#64748b] leading-relaxed">
-                    La comisión emisora aún no ha adjuntado un archivo PDF o documento oficial para este expediente.
-                  </p>
-                </div>
-              )}
-            </div>
+          <div id="printable-document-container" className="w-full">
+            <PdfViewer
+              file={activeFile}
+              fileName={report.fileName || 'informe_oficial.pdf'}
+              className="w-full min-h-[760px] sm:min-h-[860px]"
+            />
           </div>
         </div>
 

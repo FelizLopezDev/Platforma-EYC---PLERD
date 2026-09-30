@@ -92,17 +92,26 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
         : `${(fileToUpload.size / 1024).toFixed(1)} KB`;
 
     try {
+      // 1. Persist the actual real file into FileStorageService (IndexedDB + memory cache)
+      // and retain the real File reference in memory
+      const tempReportId = report?.id || `rep-${Date.now()}`;
+      const liveFileUrl = await FileStorageService.saveFile(tempReportId, fileToUpload, fileName);
+
       const submitted = DataStore.submitAicReport(user, {
         fileName,
         fileSize,
+        fileType: fileToUpload.type || 'application/pdf',
+        file: fileToUpload,
+        fileUrl: liveFileUrl,
         summary: `Documento oficial radicado por ${user.commission || user.fullName}`,
         pageCount: 1,
       });
 
-      // Persist the actual real file into FileStorageService (IndexedDB + Blob cache)
-      const liveFileUrl = await FileStorageService.saveFile(submitted.id, fileToUpload, fileName);
-      
-      // Update store with live file URL reference
+      // Also ensure FileStorage maps to the confirmed submitted.id
+      if (submitted.id !== tempReportId) {
+        await FileStorageService.saveFile(submitted.id, fileToUpload, fileName);
+      }
+      DataStore.setLiveFile(submitted.id, fileToUpload);
       DataStore.setCachedFileUrl(submitted.id, liveFileUrl);
 
       setSubmittedFileName(fileName);
