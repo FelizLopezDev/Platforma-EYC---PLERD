@@ -137,25 +137,25 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
 
   return (
     <div id="undersecretary-dashboard-root" className="space-y-6">
-      {/* Institutional Metric Cards - Based on PDF Page 8 */}
+      {/* Institutional Metric Cards */}
       <div id="undersecretary-metrics-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#bde0f2] transition-colors">
           <div className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
             INFORMES EN BANDEJA
           </div>
-          <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#002B49] mt-2 tabular-nums">
             {totalReceived}
           </div>
-          <div className="text-xs text-[#0f68a4] mt-1 font-medium">
+          <div className="text-xs text-[#006699] mt-1 font-medium">
             Bandeja de recepción general
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
-          <div className="text-[11px] font-bold text-[#97650b] uppercase tracking-wider">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#ffd8bf] transition-colors">
+          <div className="text-[11px] font-bold text-[#E85D04] uppercase tracking-wider">
             PENDIENTES DE REENVÍO
           </div>
-          <div className="text-3xl font-display font-bold text-[#97650b] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#E85D04] mt-2 tabular-nums">
             {pendingForward}
           </div>
           <div className="text-xs text-[#64748b] mt-1">
@@ -163,23 +163,23 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
-          <div className="text-[11px] font-bold text-[#0e7a52] uppercase tracking-wider">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#b8e6d5] transition-colors">
+          <div className="text-[11px] font-bold text-[#0e835c] uppercase tracking-wider">
             REENVIADOS A SECRETARÍA
           </div>
-          <div className="text-3xl font-display font-bold text-[#0e7a52] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#0e835c] mt-2 tabular-nums">
             {alreadyForwarded}
           </div>
-          <div className="text-xs text-[#0e7a52] mt-1 font-medium">
+          <div className="text-xs text-[#0e835c] mt-1 font-medium">
             Trámite institucional completado
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#cbd5e1] transition-colors">
           <div className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
-            EVALUACIÓN Y CONTROL (EYC) ACTIVOS
+            EVALUACIÓN Y CONTROL (EYC)
           </div>
-          <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#002B49] mt-2 tabular-nums">
             {aicUsers.length}
           </div>
           <div className="text-xs text-[#64748b] mt-1">
@@ -205,7 +205,7 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
             <button
               id="open-create-aic-btn"
               onClick={() => setCreateModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0f68a4] hover:bg-[#0d5285] text-white rounded-lg text-xs font-semibold transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#006699] hover:bg-[#005580] active:bg-[#004466] text-white rounded-lg text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
             >
               <UserPlus className="w-4 h-4" />
               <span>Crear Nuevo Usuario EYC</span>
@@ -366,10 +366,10 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
                       <button
                         id={`review-report-btn-${rep.id}`}
                         onClick={() => handleOpenReview(rep)}
-                        className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer ${
+                        className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer ${
                           isPendingForward
-                            ? 'bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white'
-                            : 'bg-white hover:bg-[#eff7fd] text-[#0d5285] border border-[#cbd5e1] hover:border-[#b0dbf5]'
+                            ? 'bg-[#006699] hover:bg-[#005580] active:bg-[#004466] text-white'
+                            : 'bg-white hover:bg-[#f0f7fb] text-[#006699] border border-[#cbd5e1] hover:border-[#bde0f2]'
                         }`}
                       >
                         <Eye className="w-4 h-4" />
@@ -388,19 +388,19 @@ export const UndersecretaryDashboard: React.FC<UndersecretaryDashboardProps> = (
       {createModalOpen && (
         <div
           id="create-eyc-modal"
-          className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#002B49]/70 backdrop-blur-xs flex items-center justify-center p-4"
         >
           <div className="bg-white rounded-2xl max-w-lg w-full border border-[#cbd5e1] shadow-2xl overflow-hidden">
-            <div className="px-6 py-4 bg-[#0c1f33] text-white flex items-center justify-between">
+            <div className="px-6 py-4 bg-[#002B49] text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <UserPlus className="w-5 h-5 text-[#ecc978]" />
+                <Building className="w-5 h-5 text-[#00B2B2]" />
                 <h3 className="font-display font-bold text-base">
-                  Crear Nuevo Usuario EYC
+                  Crear Usuario EYC (Comisión)
                 </h3>
               </div>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="text-[rgba(232,242,250,0.72)] hover:text-white text-xs font-semibold px-2 py-1 rounded cursor-pointer"
+                className="text-[#bde0f2] hover:text-white text-xs font-semibold px-2 py-1 rounded cursor-pointer"
               >
                 Cancelar
               </button>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import faroAColonWideImg from '../../assets/images/faro_colon_panoramic_1790044984760.jpg';
 import { User } from '../../types';
 import { DataStore } from '../../services/store';
-import { AlertCircle, Lock, Mail, LogIn } from 'lucide-react';
+import { PlerdLogo } from '../common/PlerdLogo';
+import { AlertCircle, Lock, Mail, LogIn, ShieldCheck } from 'lucide-react';
 
 interface LoginScreenProps {
   onLoginSuccess: (user: User) => void;
@@ -60,120 +60,149 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     }, 300);
   };
 
+  // Quick 1-click test fill helper
+  const handleQuickLogin = (roleEmail: string, pass: string) => {
+    setEmail(roleEmail);
+    setPassword(pass);
+    setError(null);
+  };
+
   return (
     <div
       id="login-screen-root"
-      className="min-h-screen w-full relative flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-x-hidden font-sans bg-[#08131e]"
+      className="min-h-screen w-full flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 font-sans text-[#0f172a] bg-[#0E539D] relative overflow-hidden"
     >
-      {/* Background Photograph: Faro a Colón illuminated at night covering total background */}
-      <img
-        src={faroAColonWideImg}
-        alt="Monumento Faro a Colón iluminado de noche"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-all duration-700"
-        referrerPolicy="no-referrer"
-      />
+      {/* Subtle institutional geometric background accents */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-white/5 pointer-events-none blur-2xl" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#002B49]/30 pointer-events-none blur-2xl" />
 
-      {/* Cinematic overlays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#040a10]/85 via-[#061019]/45 to-[#040a10]/70 pointer-events-none" />
-      <div className="absolute inset-0 bg-radial from-transparent via-[#061019]/25 to-[#061019]/65 pointer-events-none" />
+      {/* Main Container */}
+      <main className="w-full flex items-center justify-center relative z-10">
+        <div className="w-full max-w-[440px] bg-white rounded-2xl border border-white/20 shadow-2xl p-7 sm:p-9 transition-all">
+          {/* Brand Header inside Card */}
+          <div className="flex flex-col items-center text-center pb-6 border-b border-[#f1f5f9]">
+            <PlerdLogo
+              variant="vertical"
+              size={46}
+              showSubtitle={true}
+              secondaryText="Plataforma para Evaluación y Control"
+              subtitle=""
+            />
+          </div>
 
-      {/* ======================================================== */}
-      {/* CENTERED CARD: Authentication Card (Translucent Glass)    */}
-      {/* ======================================================== */}
-      <div
-        id="login-auth-card"
-        className="relative z-10 w-full max-w-[420px] bg-[#050e18]/65 border border-white/20 rounded-2xl p-7 sm:p-9 shadow-2xl backdrop-blur-md my-auto transition-all"
-      >
-        {/* Card Title */}
-        <div className="mb-6 text-center sm:text-left">
-          <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight drop-shadow-md">
-            Iniciar Sesión
-          </h2>
-          <p className="text-xs text-[#9eb8d0] mt-1.5 leading-relaxed">
-            Plataforma para Evaluación y Control
-          </p>
+          {/* Error Message */}
+          {error && (
+            <div
+              id="login-error-alert"
+              className="mt-5 p-3 bg-[#fdedef] border border-[#f9c2c8] text-[#C92437] rounded-lg text-xs flex items-start gap-2.5 animate-fadeIn"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#C92437]" />
+              <div className="leading-relaxed font-medium">{error}</div>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4 mt-5">
+            <div>
+              <label
+                htmlFor="login-email-input"
+                className="block text-xs font-semibold text-[#002B49] mb-1.5"
+              >
+                Correo institucional
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-[#64748b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="login-email-input"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError(null);
+                  }}
+                  placeholder="usuario@sigel.edu.do"
+                  className="w-full bg-white border border-[#cbd5e1] rounded-lg text-[#0f172a] pl-10 pr-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E539D] focus:ring-1 focus:ring-[#0E539D] transition-all placeholder:text-[#94a3b8]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="login-password-input"
+                className="block text-xs font-semibold text-[#002B49] mb-1.5"
+              >
+                Contraseña
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-[#64748b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="login-password-input"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError(null);
+                  }}
+                  placeholder="••••••••"
+                  className="w-full bg-white border border-[#cbd5e1] rounded-lg text-[#0f172a] pl-10 pr-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#0E539D] focus:ring-1 focus:ring-[#0E539D] transition-all placeholder:text-[#94a3b8]"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              id="login-submit-btn"
+              type="submit"
+              disabled={isLoading}
+              className="w-full !mt-5 bg-[#0E539D] hover:bg-[#0c4685] active:bg-[#09396e] text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg text-xs sm:text-sm transition-colors shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <span>Autenticando...</span>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  <span>Ingresar al Sistema</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Quick Access Helper Buttons for Evaluation/Testing */}
+          <div className="mt-6 pt-5 border-t border-[#f1f5f9]">
+            <span className="block text-[11px] font-semibold text-[#64748b] uppercase tracking-wider text-center mb-2.5">
+              Acceso Rápido por Rol
+            </span>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('felizlopezgroup@gmail.com', 'admin2026')}
+                className="px-2 py-1.5 text-[11px] font-medium text-[#002B49] bg-[#f8fafc] hover:bg-[#e6f0fa] border border-[#e2e8f0] hover:border-[#b0dbf5] rounded-md transition-colors text-center cursor-pointer truncate"
+                title="Secretario General"
+              >
+                Secretario Gral.
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('subsecretario.control@sigel.edu.do', 'sub2026')}
+                className="px-2 py-1.5 text-[11px] font-medium text-[#002B49] bg-[#f8fafc] hover:bg-[#e6f0fa] border border-[#e2e8f0] hover:border-[#b0dbf5] rounded-md transition-colors text-center cursor-pointer truncate"
+                title="Subsecretario de Evaluación"
+              >
+                Subsecretario
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('eyc.disec@sigel.edu.do', 'eyc2026')}
+                className="px-2 py-1.5 text-[11px] font-medium text-[#002B49] bg-[#f8fafc] hover:bg-[#e6f0fa] border border-[#e2e8f0] hover:border-[#b0dbf5] rounded-md transition-colors text-center cursor-pointer truncate"
+                title="Comisión EYC"
+              >
+                Comisión EYC
+              </button>
+            </div>
+          </div>
         </div>
-
-        {/* Error Message */}
-        {error && (
-          <div
-            id="login-error-alert"
-            className="mb-4 p-3 bg-[#fdeeec]/20 border border-[#ef4444]/60 text-white rounded-lg text-xs flex items-start gap-2 animate-fadeIn backdrop-blur-sm"
-          >
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#ef4444]" />
-            <div className="leading-relaxed">{error}</div>
-          </div>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="login-email-input"
-              className="block text-xs font-medium text-[#c5d8ea] mb-1.5 drop-shadow-sm"
-            >
-              Correo institucional autorizado
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-[#8ea8c2] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                id="login-email-input"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError(null);
-                }}
-                placeholder="usuario@sigel.edu.do"
-                className="w-full bg-[#071320]/75 border border-white/20 rounded-lg text-white pl-10 pr-3 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#389bd6] focus:bg-[#071320]/90 transition-colors placeholder:text-[#6a849d]"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="login-password-input"
-              className="block text-xs font-medium text-[#c5d8ea] mb-1.5 drop-shadow-sm"
-            >
-              Contraseña
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-[#8ea8c2] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                id="login-password-input"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (error) setError(null);
-                }}
-                placeholder="••••••••"
-                className="w-full bg-[#071320]/75 border border-white/20 rounded-lg text-white pl-10 pr-3 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-[#389bd6] focus:bg-[#071320]/90 transition-colors placeholder:text-[#6a849d]"
-              />
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            id="login-submit-btn"
-            type="submit"
-            disabled={isLoading}
-            className="w-full !mt-5 bg-[#389bd6] hover:bg-[#2e8ac0] active:bg-[#2579aa] text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg text-xs sm:text-sm transition-colors shadow-lg cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <span>Autenticando...</span>
-            ) : (
-              <>
-                <LogIn className="w-4 h-4" />
-                <span>Ingresar al Sistema</span>
-              </>
-            )}
-          </button>
-        </form>
-      </div>
+      </main>
     </div>
   );
 };
-

@@ -145,12 +145,15 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
         className="bg-white rounded-xl p-6 border border-[#e2e8f0] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div className="space-y-1">
-          <h2 className="font-display font-bold text-2xl text-[#0c1f33] tracking-tight">
+          <div className="text-[11px] font-bold text-[#006699] uppercase tracking-wider">
+            COMISIÓN DE EVALUACIÓN Y CONTROL
+          </div>
+          <h2 className="font-display font-bold text-2xl text-[#002B49] tracking-tight">
             {user.commission || user.fullName}
           </h2>
           <div className="flex flex-wrap items-center gap-4 text-xs text-[#475569] pt-1">
             <span className="flex items-center gap-1 font-medium">
-              <MapPin className="w-3.5 h-3.5 text-[#0f68a4]" />
+              <MapPin className="w-3.5 h-3.5 text-[#006699]" />
               {user.district || 'Distrito Educativo Regional 10'}
             </span>
           </div>
@@ -178,18 +181,18 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
           >
             <div
               id="aic-submission-success-banner"
-              className="p-4 sm:p-5 bg-[#e6f7ef] border border-[#b6e4ce] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs"
+              className="p-4 sm:p-5 bg-[#e8f7f1] border border-[#b8e6d5] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs"
             >
               <div className="flex items-start sm:items-center gap-3.5">
-                <div className="w-10 h-10 rounded-full bg-[#0e7a52] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-10 h-10 rounded-full bg-[#0e835c] text-white flex items-center justify-center shrink-0 shadow-xs">
                   <Check className="w-5 h-5 stroke-[2.5]" />
                 </div>
                 <div className="space-y-0.5">
-                  <h3 className="font-display font-bold text-sm sm:text-base text-[#0e7a52]">
-                    Documento Subido
+                  <h3 className="font-display font-bold text-sm sm:text-base text-[#0e835c]">
+                    Documento Oficial Radicado
                   </h3>
                   <p className="text-xs text-[#0f172a]">
-                    Archivo: <span className="font-semibold text-[#0c1f33]">{report.fileName}</span> ({report.fileSize || '3.5 MB'}) — Subido: {report.submissionDate}
+                    Archivo: <span className="font-semibold text-[#002B49]">{report.fileName}</span> ({report.fileSize || '3.5 MB'}) — Radicado: {report.submissionDate}
                   </p>
                 </div>
               </div>
@@ -197,7 +200,7 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
               <button
                 id="aic-preview-doc-btn"
                 onClick={() => setPreviewModalOpen(true)}
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#0d5285] bg-white hover:bg-[#eff7fd] border border-[#b0dbf5] rounded-lg transition-colors cursor-pointer shrink-0"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#006699] bg-white hover:bg-[#f0f7fb] border border-[#bde0f2] rounded-lg transition-colors cursor-pointer shrink-0 shadow-2xs"
               >
                 <Eye className="w-4 h-4" />
                 <span>Ver documento</span>
@@ -214,17 +217,20 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
       >
         <div className="max-w-3xl">
           <div className="mb-6">
-            <h3 className="font-display font-bold text-xl text-[#0c1f33]">
+            <h3 className="font-display font-bold text-xl text-[#002B49]">
               {isSubmitted ? 'Subir Nuevo Documento o Actualizar Informe' : 'Carga del Informe Final de Comisión'}
             </h3>
+            <p className="text-xs text-[#64748b] mt-1">
+              Trámite oficial para el envío formal del informe hacia la Subsecretaría de Evaluación y Control.
+            </p>
           </div>
 
           {uploadError && (
             <div
               id="aic-upload-error-alert"
-              className="mb-6 p-4 bg-[#fdeeec] border border-[#f5c9c4] text-[#b23b31] rounded-lg text-sm flex items-start gap-3"
+              className="mb-6 p-4 bg-[#fdedef] border border-[#f9c2c8] text-[#C92437] rounded-lg text-sm flex items-start gap-3"
             >
-              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[#C92437]" />
               <div>{uploadError}</div>
             </div>
           )}
@@ -232,7 +238,7 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
           <form onSubmit={handleSubmitReport} className="space-y-6">
             {/* File Dropzone */}
             <div>
-              <label className="block text-xs font-bold text-[#334155] uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-[#002B49] uppercase tracking-wider mb-2">
                 DOCUMENTO OFICIAL (PDF, DOCX)
               </label>
               <div
@@ -240,8 +246,8 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
                   selectedFile
-                    ? 'border-[#0f68a4] bg-[#eff7fd]/40'
-                    : 'border-[#cbd5e1] hover:border-[#0f68a4] bg-[#f8fafc]'
+                    ? 'border-[#006699] bg-[#e6f3f9]/40'
+                    : 'border-[#cbd5e1] hover:border-[#006699] bg-[#f8fafc]'
                 }`}
               >
                 <input
@@ -255,12 +261,12 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
                   htmlFor="aic-file-upload-input"
                   className="cursor-pointer flex flex-col items-center justify-center space-y-3"
                 >
-                  <div className="w-12 h-12 rounded-full bg-[#eff7fd] text-[#0f68a4] flex items-center justify-center border border-[#b0dbf5]">
+                  <div className="w-12 h-12 rounded-full bg-[#e6f3f9] text-[#006699] flex items-center justify-center border border-[#bde0f2]">
                     <FileUp className="w-6 h-6" />
                   </div>
                   {selectedFile ? (
                     <div className="space-y-1">
-                      <div className="font-semibold text-sm text-[#0c1f33]">
+                      <div className="font-semibold text-sm text-[#002B49]">
                         {selectedFile.name}
                       </div>
                       <div className="text-xs text-[#64748b]">
@@ -269,7 +275,7 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <div className="text-sm font-semibold text-[#0d5285]">
+                      <div className="text-sm font-semibold text-[#006699]">
                         Haga clic para seleccionar archivo o arrástrelo aquí
                       </div>
                       <div className="text-xs text-[#64748b]">
@@ -281,13 +287,13 @@ export const AicDashboard: React.FC<AicDashboardProps> = ({
               </div>
             </div>
 
-            {/* Submit Action Button (Institutional blue #0f68a4) */}
+            {/* Submit Action Button */}
             <div className="pt-2 flex items-center justify-end gap-3">
               <button
                 id="aic-submit-report-btn"
                 type="submit"
                 disabled={isSubmitting || !selectedFile}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white font-medium rounded-lg text-sm transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#006699] hover:bg-[#005580] active:bg-[#004466] text-white font-semibold rounded-lg text-sm transition-colors shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <span>Registrando y transmitiendo...</span>

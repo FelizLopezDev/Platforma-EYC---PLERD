@@ -195,9 +195,9 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
           <button
             id="back-to-reports-btn"
             onClick={onBack}
-            className="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#334155] hover:text-[#0c1f33] bg-white hover:bg-[#f1f5f9] border border-[#cbd5e1] rounded-lg transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#002B49] hover:text-[#006699] bg-white hover:bg-[#f0f7fb] border border-[#cbd5e1] hover:border-[#bde0f2] rounded-lg transition-colors shadow-2xs cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4 text-[#64748b]" />
+            <ArrowLeft className="w-4 h-4 text-[#006699]" />
             <span>Volver a la bandeja</span>
           </button>
 
@@ -205,15 +205,15 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-[#006699] uppercase tracking-wider">
                 EXPEDIENTE INSTITUCIONAL
               </span>
               <span className="text-xs text-[#cbd5e1]">•</span>
-              <span className="text-xs font-medium text-[#0f68a4]">
-                MONUR XVIII
+              <span className="text-xs font-semibold text-[#002B49]">
+                PLERD — CELIDER 10
               </span>
             </div>
-            <h2 className="font-display font-bold text-xl sm:text-2xl text-[#0c1f33] tracking-tight">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-[#002B49] tracking-tight">
               {report.commission}
             </h2>
           </div>
@@ -225,10 +225,10 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
             <button
               id="header-download-doc-btn"
               onClick={handleDownload}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#475569] hover:text-[#0c1f33] bg-white hover:bg-[#f8fafc] border border-[#cbd5e1] rounded-lg transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#002B49] hover:text-[#006699] bg-white hover:bg-[#f0f7fb] border border-[#cbd5e1] hover:border-[#bde0f2] rounded-lg transition-colors cursor-pointer shadow-2xs"
               title="Descargar documento a su equipo"
             >
-              <Download className="w-4 h-4 text-[#64748b]" />
+              <Download className="w-4 h-4 text-[#006699]" />
               <span className="hidden md:inline">Descargar Archivo</span>
             </button>
           )}
@@ -238,16 +238,16 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
             onClick={handlePrint}
             disabled={isPrinting}
             title="Imprimir expediente o Guardar como PDF"
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#475569] hover:text-[#0c1f33] bg-white hover:bg-[#f8fafc] border border-[#cbd5e1] rounded-lg transition-colors cursor-pointer shadow-2xs disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#002B49] hover:text-[#006699] bg-white hover:bg-[#f0f7fb] border border-[#cbd5e1] hover:border-[#bde0f2] rounded-lg transition-colors cursor-pointer shadow-2xs disabled:opacity-60"
           >
             {isPrinting ? (
               <>
-                <Loader2 className="w-4 h-4 text-[#0f68a4] animate-spin" />
+                <Loader2 className="w-4 h-4 text-[#006699] animate-spin" />
                 <span className="hidden sm:inline">Preparando impresión...</span>
               </>
             ) : (
               <>
-                <Printer className="w-4 h-4 text-[#64748b]" />
+                <Printer className="w-4 h-4 text-[#006699]" />
                 <span className="hidden sm:inline">Imprimir Expediente</span>
               </>
             )}
@@ -259,7 +259,7 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
               id="header-forward-btn"
               onClick={handleForwardClick}
               disabled={isForwarding}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white text-xs font-semibold rounded-lg transition-all shadow-xs cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#006699] hover:bg-[#005580] active:bg-[#004466] text-white text-xs font-semibold rounded-lg transition-all shadow-xs cursor-pointer disabled:opacity-50"
             >
               {isForwarding ? (
                 <>
@@ -275,12 +275,12 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
             </button>
           )}
 
-          {/* Secretary General Action: "Revisado" (replaces Conforme/Validado) */}
+          {/* Secretary General Action: "Revisado" */}
           {canMarkAsReviewed && !reviewedSuccess && (
             <button
               id="header-mark-reviewed-btn"
               onClick={handleReviewedClick}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0e7a52] hover:bg-[#09573a] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0e835c] hover:bg-[#0b6b4b] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[2.5]" />
               <span>Revisado</span>
@@ -364,12 +364,12 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
             <div className="space-y-3 pt-2 text-xs">
               {/* Step 1: EYC */}
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-[#0e7a52] text-white flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-6 h-6 rounded-full bg-[#0e835c] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                 </div>
                 <div>
-                  <div className="font-semibold text-[#0c1f33]">1. Radicación por EYC</div>
-                  <div className="text-[11px] text-[#64748b]">
+                  <div className="font-semibold text-[#002B49]">1. Radicación por EYC</div>
+                  <div className="text-[11px] text-[#475569]">
                     {report.submissionDate || 'Completado'} · {report.aicName}
                   </div>
                 </div>
@@ -378,10 +378,10 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
               {/* Step 2: Subsecretaría */}
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-2xs ${
                     isAlreadyForwarded || forwardSuccess
-                      ? 'bg-[#0e7a52] text-white'
-                      : 'bg-[#0f68a4] text-white'
+                      ? 'bg-[#0e835c] text-white'
+                      : 'bg-[#006699] text-white'
                   }`}
                 >
                   {isAlreadyForwarded || forwardSuccess ? (
@@ -391,10 +391,10 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
                   )}
                 </div>
                 <div>
-                  <div className="font-semibold text-[#0c1f33]">
+                  <div className="font-semibold text-[#002B49]">
                     2. Revisión de Subsecretaría
                   </div>
-                  <div className="text-[11px] text-[#64748b]">
+                  <div className="text-[11px] text-[#475569]">
                     {isAlreadyForwarded || forwardSuccess
                       ? `Reenviado el ${report.forwardingDate || '2026-09-30'}`
                       : 'En proceso de evaluación'}
@@ -405,11 +405,11 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
               {/* Step 3: Secretaría General */}
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-2xs ${
                     isAlreadyReviewed || reviewedSuccess
-                      ? 'bg-[#0e7a52] text-white'
+                      ? 'bg-[#0e835c] text-white'
                       : isAlreadyForwarded || forwardSuccess
-                      ? 'bg-[#c9972b] text-white'
+                      ? 'bg-[#0099CC] text-white'
                       : 'bg-[#e2e8f0] text-[#64748b]'
                   }`}
                 >
@@ -420,10 +420,10 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
                   )}
                 </div>
                 <div>
-                  <div className="font-semibold text-[#0c1f33]">
+                  <div className="font-semibold text-[#002B49]">
                     3. Secretaría General
                   </div>
-                  <div className="text-[11px] text-[#64748b]">
+                  <div className="text-[11px] text-[#475569]">
                     {isAlreadyReviewed || reviewedSuccess
                       ? `Revisado y Concluido el ${report.reviewedDate || '2026-09-30'}`
                       : isAlreadyForwarded || forwardSuccess
@@ -441,7 +441,7 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
                   id="side-forward-to-sg-btn"
                   onClick={handleForwardClick}
                   disabled={isForwarding}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white font-semibold rounded-lg text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#006699] hover:bg-[#005580] active:bg-[#004466] text-white font-semibold rounded-lg text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isForwarding ? (
                     <span>Reenviando trámite...</span>
@@ -464,7 +464,7 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
                 <button
                   id="side-mark-reviewed-btn"
                   onClick={handleReviewedClick}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0e7a52] hover:bg-[#09573a] text-white font-semibold rounded-lg text-xs transition-colors shadow-xs cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0e835c] hover:bg-[#0b6b4b] text-white font-semibold rounded-lg text-xs transition-colors shadow-xs cursor-pointer"
                 >
                   <Check className="w-4 h-4 stroke-[2.5]" />
                   <span>Marcar como Revisado</span>
@@ -478,12 +478,12 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
             {/* Reviewed Confirmation Status Note */}
             {(isAlreadyReviewed || reviewedSuccess) && (
               <div className="pt-2 border-t border-[#e2e8f0]">
-                <div className="p-3 bg-[#f1f5f9] rounded-lg border border-[#cbd5e1] text-xs space-y-1">
-                  <div className="font-semibold text-[#0c1f33] flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#0e7a52]" />
+                <div className="p-3 bg-[#e8f7f1] rounded-lg border border-[#b8e6d5] text-xs space-y-1">
+                  <div className="font-semibold text-[#002B49] flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#0e835c]" />
                     <span>Trámite Finalizado</span>
                   </div>
-                  <div className="text-[#64748b] text-[11px]">
+                  <div className="text-[#475569] text-[11px]">
                     Revisado por {report.reviewedByName || currentUser.fullName} el{' '}
                     {report.reviewedDate || '2026-09-30'}.
                   </div>
@@ -494,16 +494,16 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
 
           {/* Technical Metadata Card */}
           <div className="bg-white rounded-xl p-5 border border-[#e2e8f0] shadow-xs space-y-3.5 text-xs">
-            <h3 className="font-bold text-[#0c1f33] uppercase text-[11px] tracking-wider border-b border-[#e2e8f0] pb-2">
+            <h3 className="font-bold text-[#002B49] uppercase text-[11px] tracking-wider border-b border-[#e2e8f0] pb-2">
               Ficha Técnica del Expediente
             </h3>
 
             <div>
               <span className="text-[#64748b] text-[11px] block">Comisión Radicadora:</span>
-              <span className="font-semibold text-[#0c1f33] block mt-0.5">
+              <span className="font-semibold text-[#002B49] block mt-0.5">
                 {report.commission}
               </span>
-              <span className="text-[11px] text-[#0f68a4] block">{report.district}</span>
+              <span className="text-[11px] text-[#006699] font-medium block">{report.district}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#f1f5f9]">
@@ -511,7 +511,7 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
                 <span className="text-[#64748b] text-[10px] uppercase font-bold block">
                   Fecha Radicación
                 </span>
-                <span className="font-medium text-[#0c1f33] block mt-0.5 tabular-nums">
+                <span className="font-medium text-[#002B49] block mt-0.5 tabular-nums">
                   {report.submissionDate || 'N/A'}
                 </span>
               </div>
@@ -519,7 +519,7 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
                 <span className="text-[#64748b] text-[10px] uppercase font-bold block">
                   Fecha Reenvío
                 </span>
-                <span className="font-medium text-[#0e7a52] block mt-0.5 tabular-nums">
+                <span className="font-medium text-[#0e835c] block mt-0.5 tabular-nums">
                   {report.forwardingDate || (forwardSuccess ? 'Hoy' : 'Pendiente')}
                 </span>
               </div>
@@ -531,8 +531,8 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
               </span>
               <div className="flex items-center justify-between mt-1 p-2 bg-[#f8fafc] rounded border border-[#e2e8f0]">
                 <div className="flex items-center gap-2 truncate mr-2">
-                  <FileText className="w-4 h-4 text-[#0f68a4] shrink-0" />
-                  <span className="font-medium text-[#0c1f33] truncate">
+                  <FileText className="w-4 h-4 text-[#006699] shrink-0" />
+                  <span className="font-medium text-[#002B49] truncate">
                     {report.fileName || 'informe.pdf'}
                   </span>
                 </div>

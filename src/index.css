@@ -5,46 +5,82 @@
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
 
-    /* Azul institucional */
+    /* PLERD - Primary Blue (Institutional action & key brand color: #0E539D - Azul PLERD) */
+    --plerd-blue: #0E539D;
+    --plerd-blue-hover: #0c4685;
+    --plerd-blue-active: #09396e;
+    --plerd-blue-light: #e6f0fa;
+    --plerd-blue-subtle: #f0f6fc;
+
+    /* PLERD - Deep Navy / Dark Blue (Headings, high contrast, primary text) */
+    --plerd-navy: #002B49;
+    --plerd-navy-light: #0d3b60;
+    --plerd-navy-muted: #1e3a5f;
+
+    /* PLERD - Light Cyan / Sky Blue (Panels, badges, soft highlights) */
+    --plerd-cyan: #0099CC;
+    --plerd-cyan-light: #e0f4fc;
+    --plerd-cyan-subtle: #edf8fd;
+
+    /* PLERD - Turquoise / Teal (Secondary accent) */
+    --plerd-teal: #00B2B2;
+    --plerd-teal-light: #e6f8f8;
+
+    /* PLERD - Institutional Green (Success, Validated, Reviewed) */
+    --plerd-green: #0e835c;
+    --plerd-green-light: #e8f7f1;
+    --plerd-green-border: #b8e6d5;
+
+    /* PLERD - Orange Accent (Attention, badges) */
+    --plerd-orange: #E85D04;
+    --plerd-orange-light: #fff2e8;
+    --plerd-orange-border: #ffd8bf;
+
+    /* PLERD - Red (Errors, destructive actions, semantic alerts) */
+    --plerd-red: #C92437;
+    --plerd-red-light: #fdedef;
+    --plerd-red-border: #f9c2c8;
+
+    /* Neutral System (Dominant backgrounds, surfaces, and borders) */
+    --plerd-bg-main: #f8fafc;
+    --plerd-surface: #ffffff;
+    --plerd-border: #e2e8f0;
+    --plerd-border-subtle: #edf2f7;
+    --plerd-text-main: #0f172a;
+    --plerd-text-muted: #475569;
+    --plerd-text-subtle: #64748b;
+
+    /* Backward compatibility aliases */
     --brand-50: #eff7fd;
     --brand-100: #d6ecfa;
     --brand-200: #b0dbf5;
     --brand-300: #7cc2ec;
-    --brand-400: #45a3dc;
-    --brand-500: #1d84c4;
-    --brand-600: #0f68a4;
-    --brand-700: #0d5285;
-    --brand-800: #0f446d;
-    --brand-900: #10395b;
-    --brand-950: #08243c;
+    --brand-400: #0099CC;
+    --brand-500: #0077b6;
+    --brand-600: #006699;
+    --brand-700: #005580;
+    --brand-800: #003e61;
+    --brand-900: #002B49;
+    --brand-950: #001c30;
 
-    /* Oro protocolar */
-    --gold-100: #fbf1d9;
-    --gold-300: #ecc978;
-    --gold-500: #c9972b;
-    --gold-600: #a67b1d;
-    --gold-700: #7d5c15;
+    --ink: #002B49;
+    --ink-2: #001c30;
 
-    /* Superficie Ink */
-    --ink: #0c1f33;
-    --ink-2: #0a1a2b;
+    --ok: #0e835c;
+    --ok-bg: #e8f7f1;
+    --ok-border: #b8e6d5;
 
-    /* Estados semánticos */
-    --ok: #0e7a52;
-    --ok-bg: #e6f7ef;
-    --ok-border: #b6e4ce;
+    --warn: #d97706;
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
 
-    --warn: #97650b;
-    --warn-bg: #fdf4e0;
-    --warn-border: #f0d9a3;
+    --err: #C92437;
+    --err-bg: #fdedef;
+    --err-border: #f9c2c8;
 
-    --err: #b23b31;
-    --err-bg: #fdeeec;
-    --err-border: #f5c9c4;
-
-    --info: #0f68a4;
-    --info-bg: #eff7fd;
-    --info-border: #b0dbf5;
+    --info: #006699;
+    --info-bg: #e6f3f9;
+    --info-border: #bde0f2;
   }
 
   body {

@@ -348,12 +348,12 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
       {/* Top Professional Toolbar */}
       <div
         id="pdf-viewer-toolbar"
-        className="px-3.5 py-2.5 bg-[#0c1f33] text-white flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#173a5a] no-print shrink-0"
+        className="px-3.5 py-2.5 bg-[#002B49] text-white flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#0d3b60] no-print shrink-0"
       >
         {/* Left: Document details & page indicator */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-1.5 truncate max-w-[200px] sm:max-w-[280px]">
-            <FileText className="w-4 h-4 text-[#ecc978] shrink-0" />
+            <FileText className="w-4 h-4 text-[#00B2B2] shrink-0" />
             <span className="font-semibold truncate text-[#f8fafc] text-xs" title={fileName}>
               {fileName}
             </span>
@@ -415,7 +415,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
           <button
             onClick={handleToggleFitWidth}
             className={`p-1.5 rounded hover:bg-white/10 transition-colors cursor-pointer hidden sm:inline-flex ${
-              isFitWidth ? 'text-[#7cc2ec] bg-white/15' : 'text-white/80 hover:text-white'
+              isFitWidth ? 'text-[#00B2B2] bg-white/15' : 'text-white/80 hover:text-white'
             }`}
             title={isFitWidth ? 'Tamaño manual' : 'Ajustar al ancho'}
           >
@@ -447,7 +447,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
           <button
             onClick={handlePrint}
             disabled={isPrinting}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] disabled:opacity-60 text-white rounded text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#006699] hover:bg-[#005580] active:bg-[#004466] disabled:opacity-60 text-white rounded text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
             title="Imprimir expediente o Guardar como PDF"
           >
             {isPrinting ? (
@@ -509,9 +509,9 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
 
       {/* Bottom status bar */}
       {numPages > 0 && !errorMessage && (
-        <div className="px-4 py-2 bg-[#0c1f33]/90 text-[11px] text-[#9eb8d0] flex items-center justify-between border-t border-[#173a5a] no-print">
+        <div className="px-4 py-2 bg-[#002B49] text-[11px] text-[#bde0f2] flex items-center justify-between border-t border-[#0d3b60] no-print">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#0e7a52]" />
+            <span className="w-2 h-2 rounded-full bg-[#0e835c]" />
             <span>Documento Oficial Verificado por PDF.js (v6.3.289)</span>
           </div>
           <span>Total {numPages} {numPages === 1 ? 'página' : 'páginas'}</span>

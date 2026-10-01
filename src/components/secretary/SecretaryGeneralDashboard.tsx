@@ -207,11 +207,11 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
     <div id="secretary-general-dashboard-root" className="space-y-6">
       {/* High-level Institutional Metrics */}
       <div id="sg-metrics-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
-          <div className="text-[11px] font-bold text-[#c9972b] uppercase tracking-wider">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#bde0f2] transition-colors">
+          <div className="text-[11px] font-bold text-[#006699] uppercase tracking-wider">
             INFORMES RECIBIDOS
           </div>
-          <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#002B49] mt-2 tabular-nums">
             {forwardedReports.length}
           </div>
           <div className="text-xs text-[#64748b] mt-1 font-medium">
@@ -219,23 +219,23 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
-          <div className="text-[11px] font-bold text-[#0e7a52] uppercase tracking-wider">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#b8e6d5] transition-colors">
+          <div className="text-[11px] font-bold text-[#0e835c] uppercase tracking-wider">
             INFORMES REVISADOS
           </div>
-          <div className="text-3xl font-display font-bold text-[#0e7a52] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#0e835c] mt-2 tabular-nums">
             {reviewedReports.length}
           </div>
-          <div className="text-xs text-[#0e7a52] mt-1 font-medium">
+          <div className="text-xs text-[#0e835c] mt-1 font-medium">
             Concluidos y archivados
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
-          <div className="text-[11px] font-bold text-[#0f68a4] uppercase tracking-wider">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#b0dbf5] transition-colors">
+          <div className="text-[11px] font-bold text-[#0099CC] uppercase tracking-wider">
             EVALUACIÓN Y CONTROL (EYC)
           </div>
-          <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#002B49] mt-2 tabular-nums">
             {aicUsers.length}
           </div>
           <div className="text-xs text-[#64748b] mt-1 font-medium">
@@ -243,11 +243,11 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-xs">
+        <div className="bg-white p-5 rounded-xl border border-[#e2e8f0] shadow-2xs hover:border-[#cbd5e1] transition-colors">
           <div className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
             USUARIOS EN SISTEMA
           </div>
-          <div className="text-3xl font-display font-bold text-[#0c1f33] mt-2 tabular-nums">
+          <div className="text-3xl font-display font-bold text-[#002B49] mt-2 tabular-nums">
             {allUsers.length}
           </div>
           <div className="text-xs text-[#64748b] mt-1">
@@ -257,14 +257,14 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
       </div>
 
       {/* Navigation View Switcher Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#cbd5e1] pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-[#e2e8f0] pb-2 overflow-x-auto">
         <button
           id="sg-tab-pending"
           onClick={() => setCurrentTab('pending')}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
             currentTab === 'pending'
-              ? 'bg-[#0c1f33] text-white shadow-xs'
-              : 'text-[#475569] hover:bg-[#e2e8f0]'
+              ? 'bg-[#006699] text-white shadow-2xs'
+              : 'text-[#475569] hover:bg-[#f0f7fb] hover:text-[#002B49]'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -276,8 +276,8 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
           onClick={() => setCurrentTab('reviewed')}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
             currentTab === 'reviewed'
-              ? 'bg-[#0c1f33] text-white shadow-xs'
-              : 'text-[#475569] hover:bg-[#e2e8f0]'
+              ? 'bg-[#006699] text-white shadow-2xs'
+              : 'text-[#475569] hover:bg-[#f0f7fb] hover:text-[#002B49]'
           }`}
         >
           <CheckCircle2 className="w-4 h-4" />
@@ -289,8 +289,8 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
           onClick={() => setCurrentTab('users')}
           className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
             currentTab === 'users'
-              ? 'bg-[#0c1f33] text-white shadow-xs'
-              : 'text-[#475569] hover:bg-[#e2e8f0]'
+              ? 'bg-[#006699] text-white shadow-2xs'
+              : 'text-[#475569] hover:bg-[#f0f7fb] hover:text-[#002B49]'
           }`}
         >
           <Users className="w-4 h-4" />
@@ -583,7 +583,7 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
                     <button
                       id={`review-report-btn-${rep.id}`}
                       onClick={() => handleOpenReview(rep)}
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#006699] hover:bg-[#005580] active:bg-[#004466] text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
                     >
                       <Eye className="w-4 h-4" />
                       <span>Revisar informe</span>
@@ -600,19 +600,19 @@ export const SecretaryGeneralDashboard: React.FC<SecretaryGeneralDashboardProps>
       {createSubModalOpen && (
         <div
           id="create-subsecretary-modal"
-          className="fixed inset-0 z-50 bg-[#0c1f33]/80 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#002B49]/70 backdrop-blur-xs flex items-center justify-center p-4"
         >
           <div className="bg-white rounded-2xl max-w-lg w-full border border-[#cbd5e1] shadow-2xl overflow-hidden">
-            <div className="px-6 py-4 bg-[#0c1f33] text-white flex items-center justify-between">
+            <div className="px-6 py-4 bg-[#002B49] text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <UserCheck className="w-5 h-5 text-[#ecc978]" />
+                <UserCheck className="w-5 h-5 text-[#00B2B2]" />
                 <h3 className="font-display font-bold text-base">
                   Crear Nuevo Subsecretario
                 </h3>
               </div>
               <button
                 onClick={() => setCreateSubModalOpen(false)}
-                className="text-[rgba(232,242,250,0.72)] hover:text-white text-xs font-semibold px-2 py-1 rounded cursor-pointer"
+                className="text-[#bde0f2] hover:text-white text-xs font-semibold px-2 py-1 rounded cursor-pointer"
               >
                 Cancelar
               </button>
