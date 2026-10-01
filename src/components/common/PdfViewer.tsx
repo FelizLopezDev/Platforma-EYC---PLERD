@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { printPdfDocument } from '../../utils/pdfPrinter';
 import {
   ZoomIn,
   ZoomOut,
@@ -41,6 +42,10 @@ interface PdfViewerProps {
    */
   onLoadError?: (error: Error) => void;
   /**
+   * Optional external print handler override
+   */
+  onPrint?: () => void;
+  /**
    * Custom CSS class name for outer container
    */
   className?: string;
@@ -52,11 +57,11 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   initialScale = 1.15,
   onLoadSuccess,
   onLoadError,
+  onPrint,
   className = '',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const pagesContainerRef = useRef<HTMLDivElement>(null);
-  const printContainerRef = useRef<HTMLDivElement>(null);
 
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
@@ -65,8 +70,9 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   const [rotation, setRotation] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [renderedPages, setRenderedPages] = useState<Map<number, string>>(new Map());
   const [isFitWidth, setIsFitWidth] = useState<boolean>(false);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
+  const [printStatusMessage, setPrintStatusMessage] = useState<string>('');
 
   // 1. Load the PDF Document from File/Blob/ArrayBuffer/URL
   useEffect(() => {
@@ -95,7 +101,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
 
       setIsLoading(true);
       setErrorMessage(null);
-      setRenderedPages(new Map());
 
       try {
         let loadingTask: pdfjsLib.PDFDocumentLoadingTask;
@@ -293,9 +298,46 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     }
   };
 
-  // Safe Native Print
-  const handlePrint = () => {
-    window.print();
+  // Dedicated Reliable PDF Print
+  const handlePrint = async () => {
+    if (isPrinting) return;
+
+    if (onPrint) {
+      onPrint();
+      return;
+    }
+
+    if (!file) {
+      setErrorMessage('Documento no disponible');
+      return;
+    }
+
+    setIsPrinting(true);
+    setPrintStatusMessage('Preparando documento para imprimir...');
+
+    try {
+      await printPdfDocument({
+        file,
+        fileName,
+        onProgress: (msg) => {
+          setPrintStatusMessage(msg);
+        },
+        onError: (err) => {
+          console.error('Error al imprimir:', err);
+          setIsPrinting(false);
+          setPrintStatusMessage('');
+          alert(typeof err === 'string' ? err : 'No se pudo abrir la ventana de impresión.');
+        },
+        onComplete: () => {
+          setIsPrinting(false);
+          setPrintStatusMessage('');
+        },
+      });
+    } catch (e: any) {
+      console.error('Error in handlePrint:', e);
+      setIsPrinting(false);
+      setPrintStatusMessage('');
+    }
   };
 
   return (
@@ -404,11 +446,21 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
 
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] text-white rounded text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
+            disabled={isPrinting}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0f68a4] hover:bg-[#0d5285] active:bg-[#0f446d] disabled:opacity-60 text-white rounded text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
             title="Imprimir expediente o Guardar como PDF"
           >
-            <Printer className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Imprimir</span>
+            {isPrinting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span className="hidden sm:inline">Preparando...</span>
+              </>
+            ) : (
+              <>
+                <Printer className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Imprimir</span>
+              </>
+            )}
           </button>
         </div>
       </div>

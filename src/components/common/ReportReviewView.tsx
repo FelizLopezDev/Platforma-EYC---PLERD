@@ -4,6 +4,7 @@ import { StatusChip } from './StatusChip';
 import { FileStorageService } from '../../services/fileStorage';
 import { DataStore } from '../../services/store';
 import { PdfViewer } from './PdfViewer';
+import { printPdfDocument } from '../../utils/pdfPrinter';
 import {
   ArrowLeft,
   Send,
@@ -18,7 +19,8 @@ import {
   Check,
   AlertCircle,
   ExternalLink,
-  FileCheck
+  FileCheck,
+  Loader2
 } from 'lucide-react';
 
 interface ReportReviewViewProps {
@@ -43,6 +45,8 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
   const [isLoadingFile, setIsLoadingFile] = useState(true);
   const [forwardSuccess, setForwardSuccess] = useState(false);
   const [reviewedSuccess, setReviewedSuccess] = useState(false);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
+  const [printStatusMessage, setPrintStatusMessage] = useState<string>('');
 
   // Load the actual real uploaded document file
   useEffect(() => {
@@ -147,9 +151,40 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
     }
   };
 
-  const handlePrint = () => {
-    // Native browser print dialog
-    window.print();
+  const handlePrint = async () => {
+    if (isPrinting) return;
+
+    if (!activeFile) {
+      alert('Documento no disponible');
+      return;
+    }
+
+    setIsPrinting(true);
+    setPrintStatusMessage('Preparando documento para imprimir...');
+
+    try {
+      await printPdfDocument({
+        file: activeFile,
+        fileName: report.fileName || 'informe_oficial.pdf',
+        onProgress: (msg) => {
+          setPrintStatusMessage(msg);
+        },
+        onError: (err) => {
+          console.error('Error al imprimir expediente:', err);
+          setIsPrinting(false);
+          setPrintStatusMessage('');
+          alert(typeof err === 'string' ? err : 'No se pudo abrir la ventana de impresión.');
+        },
+        onComplete: () => {
+          setIsPrinting(false);
+          setPrintStatusMessage('');
+        },
+      });
+    } catch (e: any) {
+      console.error('Error in handlePrint:', e);
+      setIsPrinting(false);
+      setPrintStatusMessage('');
+    }
   };
 
   return (
@@ -201,11 +236,21 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
           <button
             id="header-print-expediente-btn"
             onClick={handlePrint}
+            disabled={isPrinting}
             title="Imprimir expediente o Guardar como PDF"
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#475569] hover:text-[#0c1f33] bg-white hover:bg-[#f8fafc] border border-[#cbd5e1] rounded-lg transition-colors cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#475569] hover:text-[#0c1f33] bg-white hover:bg-[#f8fafc] border border-[#cbd5e1] rounded-lg transition-colors cursor-pointer shadow-2xs disabled:opacity-60"
           >
-            <Printer className="w-4 h-4 text-[#64748b]" />
-            <span className="hidden sm:inline">Imprimir Expediente</span>
+            {isPrinting ? (
+              <>
+                <Loader2 className="w-4 h-4 text-[#0f68a4] animate-spin" />
+                <span className="hidden sm:inline">Preparando impresión...</span>
+              </>
+            ) : (
+              <>
+                <Printer className="w-4 h-4 text-[#64748b]" />
+                <span className="hidden sm:inline">Imprimir Expediente</span>
+              </>
+            )}
           </button>
 
           {/* Undersecretary Action: Forward to Secretary General */}
@@ -276,6 +321,20 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
         </div>
       )}
 
+      {isPrinting && (
+        <div className="p-4 bg-[#eff7fd] border border-[#b0dbf5] rounded-xl flex items-center justify-between gap-3 text-xs text-[#0f68a4] animate-fadeIn">
+          <div className="flex items-center gap-2.5">
+            <Loader2 className="w-5 h-5 shrink-0 animate-spin" />
+            <span className="font-semibold">
+              {printStatusMessage || 'Preparando documento para imprimir...'}
+            </span>
+          </div>
+          <span className="text-[11px] font-medium bg-white/80 px-2 py-1 rounded text-[#0d5285]">
+            Procesando páginas oficiales con PDF.js
+          </span>
+        </div>
+      )}
+
       {/* Main Grid: Document Viewer on Left (8 cols) + Metadata on Right (4 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: ACTUAL UPLOADED DOCUMENT VIEWER */}
@@ -284,6 +343,7 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
             <PdfViewer
               file={activeFile}
               fileName={report.fileName || 'informe_oficial.pdf'}
+              onPrint={handlePrint}
               className="w-full min-h-[760px] sm:min-h-[860px]"
             />
           </div>

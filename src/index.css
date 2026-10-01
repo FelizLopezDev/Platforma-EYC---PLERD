@@ -63,6 +63,11 @@
 }
 
 @media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
   header#app-header,
   .no-print,
   #header-user-badge,
@@ -78,6 +83,50 @@
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+  }
+
+  /* When dedicated print container is active */
+  body:has(#sigel-dedicated-print-container) > *:not(#sigel-dedicated-print-container) {
+    display: none !important;
+  }
+
+  body:has(#sigel-dedicated-print-container) #root {
+    display: none !important;
+  }
+
+  #sigel-dedicated-print-container {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    z-index: 99999999 !important;
+  }
+
+  .sigel-print-page {
+    display: block !important;
+    width: 100% !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .sigel-print-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .sigel-print-page img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
   }
 
   #printable-document-container,
