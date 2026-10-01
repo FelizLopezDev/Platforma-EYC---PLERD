@@ -313,7 +313,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     }
 
     setIsPrinting(true);
-    setPrintStatusMessage('Preparando documento para imprimir...');
+    setPrintStatusMessage('Preparando impresión...');
 
     try {
       await printPdfDocument({

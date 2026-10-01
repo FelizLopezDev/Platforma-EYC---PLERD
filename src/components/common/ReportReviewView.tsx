@@ -326,11 +326,11 @@ export const ReportReviewView: React.FC<ReportReviewViewProps> = ({
           <div className="flex items-center gap-2.5">
             <Loader2 className="w-5 h-5 shrink-0 animate-spin" />
             <span className="font-semibold">
-              {printStatusMessage || 'Preparando documento para imprimir...'}
+              {printStatusMessage || 'Preparando impresión...'}
             </span>
           </div>
           <span className="text-[11px] font-medium bg-white/80 px-2 py-1 rounded text-[#0d5285]">
-            Procesando páginas oficiales con PDF.js
+            Documento original oficial
           </span>
         </div>
       )}
